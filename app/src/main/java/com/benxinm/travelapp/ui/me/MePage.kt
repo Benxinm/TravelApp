@@ -27,7 +27,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -65,16 +68,41 @@ fun MePage() {
 
                                }
                                Spacer(modifier = Modifier.height(20.dp))
-                               Row {
+                               Row (modifier = Modifier.padding(horizontal = 6.dp)){
                                    Text(text = "吃货旅人", fontSize = 30.sp, fontWeight = FontWeight.Bold)
-                                   //TODO 关注粉丝
+                                   Spacer(modifier = Modifier.width(10.dp))
+                                   Text(buildAnnotatedString {
+                                       append("关注 ")
+                                       withStyle(SpanStyle(
+                                           fontSize = 21.sp,
+                                       )){
+                                           append("0")   //TODO 关注粉丝
+                                       }
+                                       append(" ")
+                                       append("粉丝 ")
+                                       withStyle(SpanStyle(
+                                           fontSize = 21.sp,
+                                       )){
+                                           append("0")   //TODO 关注粉丝
+                                       }
+                                   }, modifier = Modifier.padding(top = 8.dp))
+
                                }
-                               Text(text = "走遍天下，吃遍天下")
+                               Text(text = "走遍天下，吃遍天下",modifier = Modifier.padding(horizontal = 6.dp))
+                               Spacer(modifier = Modifier.height(10.dp))
                                Surface(modifier = Modifier
                                    .height(100.dp)
                                    .fillMaxWidth(),shape = RoundedCornerShape(10.dp),elevation = 10.dp) {
                                    Box(modifier = Modifier.padding(10.dp)) {
                                        Text(text = "口味")
+                                   }
+                               }
+                               Spacer(modifier = Modifier.height(20.dp))
+                               Surface(modifier = Modifier
+                                   .height(100.dp)
+                                   .fillMaxWidth(),shape = RoundedCornerShape(10.dp),elevation = 10.dp) {
+                                   Box(modifier = Modifier.padding(10.dp)) {
+                                       Text(text = "我的收藏")
                                    }
                                }
                            }
