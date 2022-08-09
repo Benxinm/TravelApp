@@ -17,6 +17,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import com.benxinm.travelapp.data.Page
+import com.benxinm.travelapp.ui.authentication.AuthenticationPage
 import com.benxinm.travelapp.ui.community.Community
 import com.benxinm.travelapp.ui.components.DetailPage
 import com.benxinm.travelapp.ui.components.NavigationBar
@@ -45,7 +46,9 @@ fun TravelApp() {
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(Page.MainPage.name) {
-                MainPage()
+//                MainPage()
+//                DetailPage()
+                AuthenticationPage()
             }
             composable(Page.Community.name) {
                 Community()

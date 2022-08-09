@@ -39,14 +39,14 @@ fun DetailPage() {
             .padding(top = topBarHeight.dp)
             .background(Color.White)
     ) {
-        LazyColumn {
+        LazyColumn(modifier = Modifier.fillMaxSize()) {
             item {
                 PictureContainer()
             }
             item {
                 TextComponent()
             }
-            items(3) {
+            items(35) {
                 Comment()
             }
         }
