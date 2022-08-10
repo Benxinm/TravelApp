@@ -10,7 +10,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-class UserLogin(private val context: Context) {
+class UserDao(private val context: Context) {
     companion object{
         private val Context.dataStore:DataStore<Preferences> by preferencesDataStore("user")
         val USER_IS_LOGIN= booleanPreferencesKey("user_is_login")

@@ -1,3 +1,5 @@
 package com.benxinm.travelapp.data
 
-data class User(val user_name:String,val user_nick:String)//TODO 可以删掉？
+import com.google.gson.annotations.SerializedName
+
+data class User(@SerializedName("user_name") val email:String, @SerializedName("user_nick") val nickname:String)//TODO 可以删掉？

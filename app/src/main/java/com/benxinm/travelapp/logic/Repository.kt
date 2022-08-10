@@ -16,7 +16,7 @@ object Repository {
                 Result.failure(RuntimeException("response status is${loginResponse.message}"))
             }
         }catch (e:Exception){
-            Result.failure<User>(e)
+            Result.failure(e)
         }
         emit(result)
     }
@@ -29,6 +29,32 @@ object Repository {
             }else{
                 Result.failure(RuntimeException("response status is${registerResponse.message}"))
 
+            }
+        }catch (e:Exception){
+            Result.failure(e)
+        }
+        emit(result)
+    }
+    fun sendEmail(email:String)=liveData(Dispatchers.IO){
+        val result=try {
+            val sendEmailResponse=LoginNetwork.sendEmail(email)
+            if (sendEmailResponse.code==200){
+                Result.success(true)
+            }else{
+                Result.failure(RuntimeException("response status is${sendEmailResponse.message}"))
+            }
+        }catch (e:Exception){
+            Result.failure(e)
+        }
+        emit(result)
+    }
+    fun verifyCode(code:String)=liveData(Dispatchers.IO){
+        val result=try {
+            val codeResponse=LoginNetwork.verifyCode(code)
+            if (codeResponse.code==200){
+                Result.success(true)
+            }else{
+                Result.failure(RuntimeException("response status is${codeResponse.message}"))
             }
         }catch (e:Exception){
             Result.failure(e)
