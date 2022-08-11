@@ -2,6 +2,7 @@ package com.benxinm.travelapp.logic
 
 import androidx.lifecycle.liveData
 import com.benxinm.travelapp.data.User
+import com.benxinm.travelapp.logic.network.util.network.DetailNetwork
 import com.benxinm.travelapp.logic.network.util.network.LoginNetwork
 import com.benxinm.travelapp.logic.network.util.network.UserNetwork
 import kotlinx.coroutines.Dispatchers
@@ -75,6 +76,35 @@ object Repository {
                 Result.success(numResponse.data)
             }else{
                 Result.failure(RuntimeException("response status is${numResponse.message}"))
+            }
+        }catch (e:Exception){
+            Result.failure(e)
+        }
+        emit(result)
+    }
+    /**
+     * Detail
+     */
+    fun addLike(type:String,target:String)= liveData(Dispatchers.IO){
+        val result=try {
+            val response=DetailNetwork.addLike(type, target)
+            if (response.code==1){
+                Result.success(response.data)
+            }else{
+                Result.failure(RuntimeException("response status is${response.msg}"))
+            }
+        }catch (e:Exception){
+            Result.failure(e)
+        }
+        emit(result)
+    }
+    fun cancelLike(type:String,target:String)= liveData(Dispatchers.IO){
+        val result=try {
+            val response=DetailNetwork.cancelLike(type, target)
+            if (response.code==200){
+                Result.success(response.data)
+            }else{
+                Result.failure(RuntimeException("response status is${response.msg}"))
             }
         }catch (e:Exception){
             Result.failure(e)
