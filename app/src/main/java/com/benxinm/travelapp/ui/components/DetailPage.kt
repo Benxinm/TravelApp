@@ -21,6 +21,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -29,6 +32,8 @@ import com.benxinm.travelapp.R
 import com.benxinm.travelapp.ui.authentication.MyInputBox
 import com.benxinm.travelapp.util.noRippleClickable
 import com.benxinm.travelapp.viewModel.DetailViewModel
+import com.benxinm.travelapp.viewModel.UserViewModel
+import java.text.SimpleDateFormat
 
 
 const val topBarHeight = 40
@@ -37,6 +42,7 @@ val list = listOf("1312321")
 @Composable
 fun DetailPage() {
     val detailViewModel: DetailViewModel = viewModel()
+    val userViewModel: UserViewModel = viewModel()
     DetailPageTopBar()
 
     Box(
@@ -54,11 +60,11 @@ fun DetailPage() {
                 TextComponent()
             }
             items(detailViewModel.commentList) {comment->
-                Comment(comment.userName,comment.word)
+                Comment(comment.userName,comment.word,comment.time)
             }
         }
     }
-    DetailPageBottomBar(detailViewModel = detailViewModel)
+    DetailPageBottomBar(detailViewModel = detailViewModel, userViewModel = userViewModel)
 }
 
 @Composable
@@ -139,16 +145,20 @@ fun TextComponent() {
 }
 
 @Composable
-fun Comment(username:String,text:String) {
+fun Comment(username:String,text:String,timestamp:Long) {
     Box(modifier = Modifier.padding(horizontal = 8.dp, vertical = 5.dp)) {
         Row {
             CircleImage(res = R.drawable.dla01, size = 30.dp)
             Spacer(modifier = Modifier.width(8.dp))
             Column(modifier = Modifier.fillMaxWidth()) {
                 Text(text = username, color = Color.Gray)
-                Text(
-                    text = text
-                )
+                val time= SimpleDateFormat("MM-dd").format(timestamp)
+                Text(buildAnnotatedString {
+                    append(text)
+                    withStyle(SpanStyle(fontSize = 15.sp, color = Color.LightGray)){
+                        append(if(text.length>20)"\n$time" else "  $time")
+                    }
+                })
                 LineDivider(10.dp)
             }
         }
@@ -178,7 +188,7 @@ fun Comment(username:String,text:String) {
 }
 
 @Composable
-fun DetailPageBottomBar(detailViewModel: DetailViewModel, modifier: Modifier = Modifier) {
+fun DetailPageBottomBar(detailViewModel: DetailViewModel,userViewModel: UserViewModel ,modifier: Modifier = Modifier) {
 
     Row(verticalAlignment = Alignment.Bottom, modifier = modifier.fillMaxSize()) {
         Box(
@@ -205,13 +215,13 @@ fun DetailPageBottomBar(detailViewModel: DetailViewModel, modifier: Modifier = M
                             detailViewModel.commentList.add(
                                 com.benxinm.travelapp.data.Comment(
                                     "1",
-                                    "somebody",
+                                    userViewModel.nickname,
                                     "1",
                                     detailViewModel.inputText,
                                     "1",
                                     1,
                                     1,
-                                    0
+                                    System.currentTimeMillis()
                                 )
                             )
                             detailViewModel.inputText = ""
