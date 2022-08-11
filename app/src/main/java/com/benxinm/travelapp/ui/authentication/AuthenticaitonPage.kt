@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.colorspace.ColorSpaces
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -123,7 +124,7 @@ fun AuthenticationPage() {
 }
 
 @Composable
-fun MyInputBox(value: String, onValueChange: (String) -> Unit, tint: String) {
+fun MyInputBox(value: String, onValueChange: (String) -> Unit, tint: String,modifier: Modifier=Modifier,width:Float=0.8f,height:Dp=55.dp) {
     BasicTextField(
         value = value,
         onValueChange = onValueChange,
@@ -149,8 +150,8 @@ fun MyInputBox(value: String, onValueChange: (String) -> Unit, tint: String) {
                 }
             }
         },
-        modifier = Modifier
-            .height(55.dp)
-            .fillMaxWidth(0.8f)
+        modifier = modifier
+            .height(height)
+            .fillMaxWidth(width)
     )
 }

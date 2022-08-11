@@ -10,6 +10,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Button
+import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
@@ -22,16 +24,21 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.benxinm.travelapp.R
+import com.benxinm.travelapp.ui.authentication.MyInputBox
 import com.benxinm.travelapp.util.noRippleClickable
-import org.w3c.dom.Comment
+import com.benxinm.travelapp.viewModel.DetailViewModel
+
 
 const val topBarHeight = 40
 val list = listOf("1312321")
 
 @Composable
 fun DetailPage() {
+    val detailViewModel: DetailViewModel = viewModel()
     DetailPageTopBar()
+
     Box(
         modifier = Modifier
             .systemBarsPadding()
@@ -46,11 +53,12 @@ fun DetailPage() {
             item {
                 TextComponent()
             }
-            items(35) {
-                Comment()
+            items(detailViewModel.commentList) {comment->
+                Comment(comment.userName,comment.word)
             }
         }
     }
+    DetailPageBottomBar(detailViewModel = detailViewModel)
 }
 
 @Composable
@@ -131,17 +139,15 @@ fun TextComponent() {
 }
 
 @Composable
-fun Comment() {
+fun Comment(username:String,text:String) {
     Box(modifier = Modifier.padding(horizontal = 8.dp, vertical = 5.dp)) {
         Row {
             CircleImage(res = R.drawable.dla01, size = 30.dp)
             Spacer(modifier = Modifier.width(8.dp))
             Column(modifier = Modifier.fillMaxWidth()) {
-                Text(text = "UserName", color = Color.Gray)
+                Text(text = username, color = Color.Gray)
                 Text(
-                    text = "Content~\n" +
-                            "Content~\n" +
-                            "Content~"
+                    text = text
                 )
                 LineDivider(10.dp)
             }
@@ -171,9 +177,66 @@ fun Comment() {
     }
 }
 
+@Composable
+fun DetailPageBottomBar(detailViewModel: DetailViewModel, modifier: Modifier = Modifier) {
 
-//@Preview
-//@Composable
-//fun PreviewBar() {
-//    DetailPage()
-//}
+    Row(verticalAlignment = Alignment.Bottom, modifier = modifier.fillMaxSize()) {
+        Box(
+            modifier = Modifier
+                .wrapContentHeight()
+                .fillMaxWidth()
+                .background(Color.White)
+        ) {
+            Column {
+                Divider()
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    MyInputBox(
+                        value = detailViewModel.inputText,
+                        onValueChange = { detailViewModel.inputText = it },
+                        tint = "说点什么...",
+                        modifier = Modifier.padding(8.dp),
+                        width = 0.75f,
+                        height = 45.dp)
+                    Box(modifier = Modifier
+                        .size(width = 80.dp, height = 45.dp)
+                        .clip(RoundedCornerShape(30.dp))
+                        .background(Color.Red)
+                        .clickable {
+                            detailViewModel.commentList.add(
+                                com.benxinm.travelapp.data.Comment(
+                                    "1",
+                                    "somebody",
+                                    "1",
+                                    detailViewModel.inputText,
+                                    "1",
+                                    1,
+                                    1,
+                                    0
+                                )
+                            )
+                            detailViewModel.inputText = ""
+                        }) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center,
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            Text(
+                                text = "发送",
+                                color = Color.White,
+                                fontSize = 20.sp,
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
+fun PreviewBar() {
+    DetailPage()
+}

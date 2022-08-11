@@ -47,8 +47,8 @@ fun TravelApp() {
         ) {
             composable(Page.MainPage.name) {
 //                MainPage()
-//                DetailPage()
-                AuthenticationPage()
+                DetailPage()
+//                AuthenticationPage()
             }
             composable(Page.Community.name) {
                 Community()
