@@ -3,9 +3,13 @@ package com.benxinm.travelapp.logic
 import androidx.lifecycle.liveData
 import com.benxinm.travelapp.data.User
 import com.benxinm.travelapp.logic.network.util.network.LoginNetwork
+import com.benxinm.travelapp.logic.network.util.network.UserNetwork
 import kotlinx.coroutines.Dispatchers
 
 object Repository {
+    /**
+     * Login
+     */
     fun login(username:String,password:String)= liveData(Dispatchers.IO){
         val result=try {
             val loginResponse = LoginNetwork.login(username, password)
@@ -55,6 +59,22 @@ object Repository {
                 Result.success(true)
             }else{
                 Result.failure(RuntimeException("response status is${codeResponse.message}"))
+            }
+        }catch (e:Exception){
+            Result.failure(e)
+        }
+        emit(result)
+    }
+    /**
+     * User
+     */
+    fun getFanSubNum(email: String)= liveData(Dispatchers.IO){
+        val result=try {
+            val numResponse=UserNetwork.getFanSubNum(email)
+            if (numResponse.code==200){
+                Result.success(numResponse.data)
+            }else{
+                Result.failure(RuntimeException("response status is${numResponse.message}"))
             }
         }catch (e:Exception){
             Result.failure(e)

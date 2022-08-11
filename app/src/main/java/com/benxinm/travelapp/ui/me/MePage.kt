@@ -17,15 +17,13 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -34,11 +32,25 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.benxinm.travelapp.R
+import com.benxinm.travelapp.viewModel.UserViewModel
 
 @Composable
 fun MePage() {
     val listState = rememberLazyListState()
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val userViewModel:UserViewModel= viewModel()
+    LaunchedEffect(key1 = userViewModel.targetEmail){
+        userViewModel.getFanSubNum(userViewModel.targetEmail)
+    }
+    userViewModel.fanSubNumLiveData.observe(lifecycleOwner){result->
+        val map =result.getOrNull()
+        if (map!=null){
+            userViewModel.fanNum=map["my_fans"]!!
+            userViewModel.subNum=map["my_follow"]!!
+        }
+    }
     Box {
         LazyColumn(state = listState) {
             item {
@@ -76,14 +88,14 @@ fun MePage() {
                                        withStyle(SpanStyle(
                                            fontSize = 21.sp,
                                        )){
-                                           append("0")   //TODO 关注粉丝
+                                           append(userViewModel.subNum.toString())   //TODO 关注粉丝
                                        }
                                        append(" ")
                                        append("粉丝 ")
                                        withStyle(SpanStyle(
                                            fontSize = 21.sp,
                                        )){
-                                           append("0")   //TODO 关注粉丝
+                                           append(userViewModel.fanNum.toString())   //TODO 关注粉丝
                                        }
                                    }, modifier = Modifier.padding(top = 8.dp))
 

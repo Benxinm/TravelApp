@@ -25,12 +25,14 @@ import com.benxinm.travelapp.ui.theme.blue8
 import com.benxinm.travelapp.ui.theme.white7blue
 import com.benxinm.travelapp.util.noRippleClickable
 import com.benxinm.travelapp.viewModel.LoginViewModel
+import com.benxinm.travelapp.viewModel.UserViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun AuthenticationPage() {
     val loginViewModel: LoginViewModel = viewModel()
+    val userViewModel:UserViewModel = viewModel()
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val userDao = UserDao(context)
@@ -99,8 +101,9 @@ fun AuthenticationPage() {
         loginViewModel.userLiveData.observe(lifecycleOwner) { result ->
             val user = result.getOrNull()
             if (user != null) {
-                loginViewModel.email = user.email
-                loginViewModel.nickname = user.nickname
+                userViewModel.email = user.email
+                userViewModel.nickname = user.nickname
+                userViewModel.targetEmail=user.email
                 scope.launch {
                     userDao.saveUserEmail(user.email)
                     userDao.saveUserPassword(password)
