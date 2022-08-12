@@ -1,5 +1,6 @@
 package com.benxinm.travelapp.logic
 
+import android.util.Log
 import androidx.lifecycle.liveData
 import com.benxinm.travelapp.data.User
 import com.benxinm.travelapp.logic.network.util.network.DetailNetwork
@@ -87,6 +88,7 @@ object Repository {
      */
     fun addLike(type:String,target:String)= liveData(Dispatchers.IO){
         val result=try {
+            Log.d("motherfucker","rep addLike")
             val response=DetailNetwork.addLike(type, target)
             if (response.code==1){
                 Result.success(response.data)

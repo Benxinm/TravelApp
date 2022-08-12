@@ -1,7 +1,7 @@
 package com.benxinm.travelapp.logic.network.service
 
 import com.benxinm.travelapp.data.Comment
-import com.benxinm.travelapp.data.CommentList
+import com.benxinm.travelapp.data.CommentWithHead
 import com.benxinm.travelapp.logic.network.CommonResult
 import retrofit2.Call
 import retrofit2.http.*
@@ -49,5 +49,5 @@ interface DetailService {
         @Path("level") level:Int,
         @Path("page") page:Int,
         @Path("pageSize") pageSize:Int,
-    ):Call<CommonResult<CommentList>>
+    ):Call<CommonResult<List<CommentWithHead>>>
 }

@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -30,6 +31,7 @@ fun AnimatedScaleButton(
     @DrawableRes idleSource:Int,
     @DrawableRes activeSource:Int,
     onToggle: () -> Unit,
+    onClick:(ScaleButtonState)->Unit={},
     size:Dp
 ) {
     val transition = updateTransition(
@@ -53,8 +55,12 @@ fun AnimatedScaleButton(
             tint = scaleButtonColor,
             modifier = modifier
                 .size(size)
-                .noRippleClickable(onClick = onToggle)
+                .noRippleClickable{
+                    onToggle()
+                    onClick(state)
+                }
         )
+
     }
 }
 

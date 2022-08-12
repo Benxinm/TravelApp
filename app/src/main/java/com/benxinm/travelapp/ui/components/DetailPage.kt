@@ -60,7 +60,7 @@ fun DetailPage() {
                 TextComponent()
             }
             items(detailViewModel.commentList) {comment->
-                Comment(comment.userName,comment.word,comment.time)
+                Comment(comment.userName,comment.word,comment.time,comment.head)
             }
         }
     }
@@ -145,10 +145,10 @@ fun TextComponent() {
 }
 
 @Composable
-fun Comment(username:String,text:String,timestamp:Long) {
+fun Comment(username:String,text:String,timestamp:Long,headPortrait:String) {
     Box(modifier = Modifier.padding(horizontal = 8.dp, vertical = 5.dp)) {
         Row {
-            CircleImage(res = R.drawable.dla01, size = 30.dp)
+            CoilCircleImage(url = headPortrait,size = 30.dp)
             Spacer(modifier = Modifier.width(8.dp))
             Column(modifier = Modifier.fillMaxWidth()) {
                 Text(text = username, color = Color.Gray)
@@ -176,7 +176,7 @@ fun Comment(username:String,text:String,timestamp:Long) {
                 onToggle = {
                     state =
                         if (state == ScaleButtonState.IDLE) ScaleButtonState.ACTIVE else ScaleButtonState.IDLE
-                },
+                }, onClick = {},
                 size = 20.dp,
                 activeColor = Color.Red,
                 idleColor = Color.LightGray,
@@ -213,7 +213,7 @@ fun DetailPageBottomBar(detailViewModel: DetailViewModel,userViewModel: UserView
                         .background(Color.Red)
                         .clickable {
                             detailViewModel.commentList.add(
-                                com.benxinm.travelapp.data.Comment(
+                                com.benxinm.travelapp.data.CommentWithHead(
                                     "1",
                                     userViewModel.nickname,
                                     "1",
@@ -221,7 +221,7 @@ fun DetailPageBottomBar(detailViewModel: DetailViewModel,userViewModel: UserView
                                     "1",
                                     1,
                                     1,
-                                    System.currentTimeMillis()
+                                    System.currentTimeMillis(), userViewModel.defaultPortrait
                                 )
                             )
                             detailViewModel.inputText = ""
