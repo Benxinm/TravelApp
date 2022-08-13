@@ -13,10 +13,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.Divider
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,13 +30,20 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImagePainter
+import coil.compose.SubcomposeAsyncImage
+import coil.compose.SubcomposeAsyncImageContent
 import com.benxinm.travelapp.R
 import com.benxinm.travelapp.logic.Repository
 import com.benxinm.travelapp.ui.authentication.MyInputBox
+import com.benxinm.travelapp.ui.main.DotsIndicator
 import com.benxinm.travelapp.util.noRippleClickable
 import com.benxinm.travelapp.util.offsetPercent
 import com.benxinm.travelapp.viewModel.DetailViewModel
 import com.benxinm.travelapp.viewModel.UserViewModel
+import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.pager.HorizontalPager
+import com.google.accompanist.pager.rememberPagerState
 import java.text.SimpleDateFormat
 
 
@@ -52,7 +56,6 @@ fun DetailPage() {
     val lifecycleOwner = LocalLifecycleOwner.current
     val context = LocalContext.current
     val listState = rememberLazyListState()
-//    val offsetPercentX by animateFloatAsState(targetValue = if (detailViewModel.isChecking) 0f else 1f)
     var page by remember {
         mutableStateOf(1)
     }
@@ -61,7 +64,6 @@ fun DetailPage() {
     }
     Box(modifier = Modifier
         .fillMaxSize()
-//        .offsetPercent(offsetPercentX = offsetPercentX)
     ) {
         DetailPageTopBar(detailViewModel)
         Box(
@@ -73,10 +75,10 @@ fun DetailPage() {
         ) {
             LazyColumn(modifier = Modifier.fillMaxSize(), state = listState) {
                 item {
-                    PictureContainer()
+                    PictureContainer(detailViewModel)
                 }
                 item {
-                    TextComponent()
+                    TextComponent(detailViewModel)
                 }
                 items(detailViewModel.commentList) { comment ->
                     Comment(comment.userName, comment.word, comment.time, comment.head)
@@ -114,7 +116,7 @@ fun DetailPageTopBar(detailViewModel: DetailViewModel) {
                     modifier = Modifier
                         .size(20.dp)
                         .clip(CircleShape)
-                        .noRippleClickable {detailViewModel.isChecking=false}
+                        .noRippleClickable { detailViewModel.isChecking = false }
                 )
                 CircleImage(res = R.drawable.dla01, size = 30.dp)
                 Text(text = "Benxinm", modifier = Modifier.padding(start = 10.dp))
@@ -153,24 +155,39 @@ fun DetailPageTopBar(detailViewModel: DetailViewModel) {
     }
 }
 
+@OptIn(ExperimentalPagerApi::class)
 @Composable
-fun PictureContainer() {
-    //TODO 图片参数
-    Image(
-        painter = painterResource(id = R.drawable.dla01),
-        contentDescription = "图片",
-        modifier = Modifier.fillMaxWidth(),
-        contentScale = ContentScale.Crop
-    )
+fun PictureContainer(detailViewModel: DetailViewModel) {
+    // 图片参数
+//    Image(
+//        painter = painterResource(id = R.drawable.dla01),
+//        contentDescription = "图片",
+//        modifier = Modifier.fillMaxWidth(),
+//        contentScale = ContentScale.Crop
+//    )
+    val state = rememberPagerState()
+    Column {
+        HorizontalPager(count = detailViewModel.urlList.size,state=state) {page->
+            SubcomposeAsyncImage(model =detailViewModel.urlList[page], modifier = Modifier.fillMaxWidth().height(300.dp) ,contentScale = ContentScale.Fit , contentDescription ="") {
+                val state=painter.state
+                if (state is AsyncImagePainter.State.Loading || state is AsyncImagePainter.State.Error) {
+                    CircularProgressIndicator()
+                } else {
+                    SubcomposeAsyncImageContent()
+                }
+            }
+        }
+        Spacer(modifier = Modifier.height(15.dp))
+        DotsIndicator(totalDots = detailViewModel.urlList.size, selectedIndex = state.currentPage)
+    }
 }
 
 @Composable
-fun TextComponent() {
-    //TODO title 和 content 放map传参进来 或者直接两个参数
+fun TextComponent(detailViewModel: DetailViewModel) {
     Box(modifier = Modifier.padding(8.dp)) {
         Column {
-            Text(text = "Title", fontSize = 20.sp)
-            Text(text = "Content~\nContent~\nContent~\nContent~Content~Content~Content~Content~")
+            Text(text = detailViewModel.detailModel!!.title, fontSize = 20.sp)
+            Text(text = detailViewModel.detailModel!!.detail)
             LineDivider(10.dp)
         }
     }
@@ -281,9 +298,9 @@ fun DetailPageBottomBar(
                                         userViewModel.nickname,
                                         "1",
                                         detailViewModel.inputText,
-                                        "1",
+                                        detailViewModel.target,
                                         1,
-                                        1,
+                                        0,
                                         System.currentTimeMillis(),
                                         userViewModel.defaultPortrait
                                     )

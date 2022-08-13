@@ -34,14 +34,14 @@ import kotlinx.coroutines.flow.flow
 
 @Composable
 fun Community(navController: NavController) {
-    val communityViewModel:CommunityViewModel= viewModel()
-    val detailViewModel:DetailViewModel= viewModel()
+    val communityViewModel: CommunityViewModel = viewModel()
+    val detailViewModel: DetailViewModel = viewModel()
     val lifecycleOwner = LocalLifecycleOwner.current
-    val context=LocalContext.current
-    LaunchedEffect(key1 = true){
-        communityViewModel.getAllPost().observe(lifecycleOwner){result->
-            val list=result.getOrNull()
-            if (list!=null&& result.isSuccess){
+    val context = LocalContext.current
+    LaunchedEffect(key1 = true) {
+        communityViewModel.getAllPost().observe(lifecycleOwner) { result ->
+            val list = result.getOrNull()
+            if (list != null && result.isSuccess) {
                 communityViewModel.postList.addAll(list)
             }
         }
@@ -49,7 +49,7 @@ fun Community(navController: NavController) {
     val list = listOf(
         Label("https://s2.loli.net/2022/08/02/JTYD61w3jlQRWcu.jpg", "福州佛跳墙"),
     )
-    Box(modifier = Modifier.fillMaxSize()){
+    Box(modifier = Modifier.fillMaxSize()) {
         Box(modifier = Modifier.systemBarsPadding()) {
             Column {
                 Box(modifier = Modifier.padding(horizontal = 20.dp)) {
@@ -78,38 +78,56 @@ fun Community(navController: NavController) {
                                 maxColumnWidth = 215.dp,
                                 modifier = Modifier.padding(horizontal = 15.dp)
                             ) {
-                                /*communityViewModel.postList*/list.forEach { label ->
-                                val likes = remember {
-                                    mutableStateOf(0)
-                                }
-                                WaterfallLabel(
-                                    url = label.imgRes,
-                                    text = label.text,
-                                    likes =likes.value, onSelected = {
-                                       navController.navigate(Page.Detail.name)
+                                communityViewModel.postList/*list*/.forEach { label ->
+                                    val likes = remember {
+                                        mutableStateOf(0)
                                     }
-                                ) { scaleButtonState ->
-                                    if (scaleButtonState == ScaleButtonState.IDLE) {
-                                        Repository.addLike("123", "123").observe(lifecycleOwner) {
-                                            if (it.isSuccess) {
-                                                likes.value++
-                                            }
+                                    WaterfallLabel(
+                                        url = label.picUrl,
+                                        text = label.title,
+                                        likes = likes.value, onSelected = {
+                                            detailViewModel.target=label.id
+                                            communityViewModel.getUrls(label.id)
+                                            communityViewModel.getPostDetail(label.id)
+                                            navController.navigate(Page.Detail.name)
                                         }
-                                    } else {
-                                        Repository.cancelLike("456", "456").observe(lifecycleOwner) {
-                                            if (it.isSuccess) {
-                                                likes.value--
-                                            }/*else{
+                                    ) { scaleButtonState ->
+                                        if (scaleButtonState == ScaleButtonState.IDLE) {
+                                            Repository.addLike("123", "123")
+                                                .observe(lifecycleOwner) {
+                                                    if (it.isSuccess) {
+                                                        likes.value++
+                                                    }
+                                                }
+                                        } else {
+                                            Repository.cancelLike("456", "456")
+                                                .observe(lifecycleOwner) {
+                                                    if (it.isSuccess) {
+                                                        likes.value--
+                                                    }/*else{
                                                 likes.value--
                                             }*/
+                                                }
                                         }
                                     }
                                 }
-                            }
                             }
                         }
                     }
                 }
+            }
+        }
+        communityViewModel.getPostDetailLivedata.observe(lifecycleOwner){
+            val result=it.getOrNull()
+            if (result!=null){
+                detailViewModel.detailModel=result[0]
+            }
+        }
+        communityViewModel.getUrlsLiveData.observe(lifecycleOwner){
+            val result=it.getOrNull()
+            if (result!=null){
+                detailViewModel.urlList.clear()
+                detailViewModel.urlList.addAll(result)
             }
         }
     }
