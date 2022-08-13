@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.view.WindowCompat
 import com.benxinm.travelapp.ui.TravelApp
+import com.benxinm.travelapp.ui.components.DetailPage
 import com.benxinm.travelapp.ui.me.MePage
 import com.benxinm.travelapp.ui.theme.TravelAppTheme
 
@@ -27,18 +28,11 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             TravelAppTheme {
-                // A surface container using the 'background' color from the theme
-
                 rememberSystemUiController().setStatusBarColor(
                     Color.Transparent, darkIcons = MaterialTheme.colors.isLight)
-//                Box(modifier = Modifier.background(Color.Gray)){
-//                    Box(Modifier.systemBarsPadding()) {
-//                        Box(Modifier.imePadding()) {
-//                            Text(text = "首页\r\n首页1\r\n首页2\r\n首页3")
-//                        }
-//                    }
-//                }
-                TravelApp()
+                Box {
+                    TravelApp()
+                }
             }
         }
     }

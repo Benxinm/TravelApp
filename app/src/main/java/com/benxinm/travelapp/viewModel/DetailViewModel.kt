@@ -11,8 +11,9 @@ import com.benxinm.travelapp.data.CommentWithHead
 import com.benxinm.travelapp.data.askModel.AddCommentModel
 import com.benxinm.travelapp.data.askModel.GetCommentModel
 import com.benxinm.travelapp.logic.Repository
-const val pageSize=10
 class DetailViewModel : ViewModel() {
+    private val pageSize=10
+    var isChecking by mutableStateOf(false)
     var inputText by mutableStateOf("")
     val commentList = mutableStateListOf<CommentWithHead>()
     private val _addCommentLiveData = MutableLiveData<AddCommentModel>()

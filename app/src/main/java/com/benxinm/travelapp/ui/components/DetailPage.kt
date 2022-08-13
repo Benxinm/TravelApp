@@ -2,6 +2,7 @@ package com.benxinm.travelapp.ui.components
 
 import android.widget.Toast
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -36,6 +37,7 @@ import com.benxinm.travelapp.R
 import com.benxinm.travelapp.logic.Repository
 import com.benxinm.travelapp.ui.authentication.MyInputBox
 import com.benxinm.travelapp.util.noRippleClickable
+import com.benxinm.travelapp.util.offsetPercent
 import com.benxinm.travelapp.viewModel.DetailViewModel
 import com.benxinm.travelapp.viewModel.UserViewModel
 import java.text.SimpleDateFormat
@@ -47,52 +49,58 @@ const val topBarHeight = 40
 fun DetailPage() {
     val detailViewModel: DetailViewModel = viewModel()
     val userViewModel: UserViewModel = viewModel()
-    val lifecycleOwner= LocalLifecycleOwner.current
-    val context= LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val context = LocalContext.current
     val listState = rememberLazyListState()
+//    val offsetPercentX by animateFloatAsState(targetValue = if (detailViewModel.isChecking) 0f else 1f)
     var page by remember {
         mutableStateOf(1)
     }
-    LaunchedEffect(key1 = userViewModel.targetEmailForDetail){
-        detailViewModel.getComments(3,userViewModel.targetEmailForDetail,1,page)
+    LaunchedEffect(key1 = userViewModel.targetEmailForDetail) {
+        detailViewModel.getComments(3, userViewModel.targetEmailForDetail, 1, page)
     }
-    DetailPageTopBar()
-    Box(
-        modifier = Modifier
-            .systemBarsPadding()
-            .fillMaxSize()
-            .padding(top = topBarHeight.dp)
-            .background(Color.White)
+    Box(modifier = Modifier
+        .fillMaxSize()
+//        .offsetPercent(offsetPercentX = offsetPercentX)
     ) {
-        LazyColumn(modifier = Modifier.fillMaxSize(), state = listState) {
-            item {
-                PictureContainer()
-            }
-            item {
-                TextComponent()
-            }
-            items(detailViewModel.commentList) {comment->
-                Comment(comment.userName,comment.word,comment.time,comment.head)
+        DetailPageTopBar(detailViewModel)
+        Box(
+            modifier = Modifier
+                .systemBarsPadding()
+                .fillMaxSize()
+                .padding(top = topBarHeight.dp)
+                .background(Color.White)
+        ) {
+            LazyColumn(modifier = Modifier.fillMaxSize(), state = listState) {
+                item {
+                    PictureContainer()
+                }
+                item {
+                    TextComponent()
+                }
+                items(detailViewModel.commentList) { comment ->
+                    Comment(comment.userName, comment.word, comment.time, comment.head)
+                }
             }
         }
+        DetailPageBottomBar(detailViewModel = detailViewModel, userViewModel = userViewModel)
     }
-    DetailPageBottomBar(detailViewModel = detailViewModel, userViewModel = userViewModel)
-    detailViewModel.addCommentLiveData.observe(lifecycleOwner){
-        if (it.isSuccess){
-            val toast=Toast.makeText(context,"评论成功",Toast.LENGTH_SHORT)
+    detailViewModel.addCommentLiveData.observe(lifecycleOwner) {
+        if (it.isSuccess) {
+            val toast = Toast.makeText(context, "评论成功", Toast.LENGTH_SHORT)
             toast.show()
         }
     }
-    detailViewModel.getCommentLiveData.observe(lifecycleOwner){
-        val result=it.getOrNull()
-        if (result!=null){
+    detailViewModel.getCommentLiveData.observe(lifecycleOwner) {
+        val result = it.getOrNull()
+        if (result != null) {
             detailViewModel.commentList.addAll(result)
         }
     }
 }
 
 @Composable
-fun DetailPageTopBar() {
+fun DetailPageTopBar(detailViewModel: DetailViewModel) {
     Box(modifier = Modifier.background(Color.White)) {
         Box(modifier = Modifier.systemBarsPadding()) {
             Row(
@@ -106,7 +114,7 @@ fun DetailPageTopBar() {
                     modifier = Modifier
                         .size(20.dp)
                         .clip(CircleShape)
-                        .noRippleClickable { }
+                        .noRippleClickable {detailViewModel.isChecking=false}
                 )
                 CircleImage(res = R.drawable.dla01, size = 30.dp)
                 Text(text = "Benxinm", modifier = Modifier.padding(start = 10.dp))
@@ -169,19 +177,19 @@ fun TextComponent() {
 }
 
 @Composable
-fun Comment(username:String,text:String,timestamp:Long,headPortrait:String) {
-    val lifecycleOwner= LocalLifecycleOwner.current
+fun Comment(username: String, text: String, timestamp: Long, headPortrait: String) {
+    val lifecycleOwner = LocalLifecycleOwner.current
     Box(modifier = Modifier.padding(horizontal = 8.dp, vertical = 5.dp)) {
         Row {
-            CoilCircleImage(url = headPortrait,size = 30.dp)
+            CoilCircleImage(url = headPortrait, size = 30.dp)
             Spacer(modifier = Modifier.width(8.dp))
             Column(modifier = Modifier.fillMaxWidth()) {
                 Text(text = username, color = Color.Gray)
-                val time= SimpleDateFormat("MM-dd").format(timestamp)
+                val time = SimpleDateFormat("MM-dd").format(timestamp)
                 Text(buildAnnotatedString {
                     append(text)
-                    withStyle(SpanStyle(fontSize = 15.sp, color = Color.LightGray)){
-                        append(if(text.length>20)"\n$time" else "  $time")
+                    withStyle(SpanStyle(fontSize = 15.sp, color = Color.LightGray)) {
+                        append(if (text.length > 20) "\n$time" else "  $time")
                     }
                 })
                 LineDivider(10.dp)
@@ -231,7 +239,11 @@ fun Comment(username:String,text:String,timestamp:Long,headPortrait:String) {
 }
 
 @Composable
-fun DetailPageBottomBar(detailViewModel: DetailViewModel,userViewModel: UserViewModel ,modifier: Modifier = Modifier) {
+fun DetailPageBottomBar(
+    detailViewModel: DetailViewModel,
+    userViewModel: UserViewModel,
+    modifier: Modifier = Modifier
+) {
     Row(verticalAlignment = Alignment.Bottom, modifier = modifier.fillMaxSize()) {
         Box(
             modifier = Modifier
@@ -248,7 +260,8 @@ fun DetailPageBottomBar(detailViewModel: DetailViewModel,userViewModel: UserView
                         tint = "说点什么...",
                         modifier = Modifier.padding(8.dp),
                         width = 0.75f,
-                        height = 45.dp)
+                        height = 45.dp
+                    )
                     Box(modifier = Modifier
                         .size(width = 80.dp, height = 45.dp)
                         .clip(RoundedCornerShape(30.dp))
@@ -271,7 +284,8 @@ fun DetailPageBottomBar(detailViewModel: DetailViewModel,userViewModel: UserView
                                         "1",
                                         1,
                                         1,
-                                        System.currentTimeMillis(), userViewModel.defaultPortrait
+                                        System.currentTimeMillis(),
+                                        userViewModel.defaultPortrait
                                     )
                                 )
                                 detailViewModel.inputText = ""
