@@ -1,3 +1,3 @@
 package com.benxinm.travelapp.data
 
-data class Label (val imgRes:Int,val text:String)
+data class Label (val imgRes:String,val text:String)

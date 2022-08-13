@@ -7,12 +7,11 @@ import retrofit2.http.Path
 
 interface CommunityService {
     @GET("/community/all_post")
-    fun getAllPost():Call<CommonResultPython<List<List<String>>>>
+    fun getAllPost(): Call<CommonResultPython<List<List<String>>>>
     @GET("/post_detail/{uid}")
-    fun getPostDetail(@Path("uid")id:String):Call<CommonResultPython<List<List<String>>>>
+    fun getPostDetail(@Path("uid")id:String): Call<CommonResultPython<List<List<String>>>>
     @GET("/post_picture/{uid}")
-    fun getUrls(@Path("uid") id:String):Call<CommonResultPython<List<String>>>//TODO 二维还是一维
+    fun getUrls(@Path("uid") id:String): Call<CommonResultPython<List<List<String>>>>
     @GET("/{email}/community/follow_post")
-    fun getSubPost(@Path("email")email:String):Call<CommonResultPython<List<List<String>>>>
-    //TODO 发布新帖
+    fun getSubPost(@Path("email")email:String): Call<CommonResultPython<List<List<String>>>>
 }

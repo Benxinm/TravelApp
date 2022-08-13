@@ -2,6 +2,7 @@ package com.benxinm.travelapp.logic.network.util.network
 
 import com.benxinm.travelapp.logic.network.service.DetailService
 import com.benxinm.travelapp.logic.network.util.PythonServiceCreator
+import com.benxinm.travelapp.logic.network.util.network.DetailNetwork.await
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response

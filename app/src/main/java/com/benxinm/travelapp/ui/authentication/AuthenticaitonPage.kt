@@ -1,5 +1,6 @@
 package com.benxinm.travelapp.ui.authentication
 
+import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
@@ -33,7 +34,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun AuthenticationPage() {
     val loginViewModel: LoginViewModel = viewModel()
-    val userViewModel:UserViewModel = viewModel()
+    val userViewModel: UserViewModel = viewModel()
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val userDao = UserDao(context)
@@ -63,15 +64,23 @@ fun AuthenticationPage() {
             verticalArrangement = Arrangement.Center
         ) {
             MyInputBox(value = email, onValueChange = { email = it }, tint = "邮箱")
-            if (isRegister)Spacer(modifier = Modifier.height(20.dp))
-            AnimatedContent(targetState = isRegister) {isRegister->
-                if (isRegister) MyInputBox(value = nickname, onValueChange = { nickname = it }, tint = "昵称")
+            if (isRegister) Spacer(modifier = Modifier.height(20.dp))
+            AnimatedContent(targetState = isRegister) { isRegister ->
+                if (isRegister) MyInputBox(
+                    value = nickname,
+                    onValueChange = { nickname = it },
+                    tint = "昵称"
+                )
             }
             Spacer(modifier = Modifier.height(20.dp))
             MyInputBox(value = password, onValueChange = { password = it }, tint = "密码")
             if (isRegister) Spacer(modifier = Modifier.height(20.dp))
-            AnimatedContent(targetState = isRegister) {isRegister->
-                if (isRegister)MyInputBox(value = rePassword, onValueChange = { rePassword = it }, tint = "再次输入密码")
+            AnimatedContent(targetState = isRegister) { isRegister ->
+                if (isRegister) MyInputBox(
+                    value = rePassword,
+                    onValueChange = { rePassword = it },
+                    tint = "再次输入密码"
+                )
             }
             Spacer(modifier = Modifier.height(20.dp))
             Button(
@@ -96,7 +105,7 @@ fun AuthenticationPage() {
             }
             Spacer(modifier = Modifier.height(20.dp))
             Text(text = if (isRegister) "返回登录" else "新用户注册", modifier = Modifier.noRippleClickable {
-                isRegister=!isRegister
+                isRegister = !isRegister
             })
         }
         loginViewModel.userLiveData.observe(lifecycleOwner) { result ->
@@ -104,7 +113,7 @@ fun AuthenticationPage() {
             if (user != null) {
                 userViewModel.email = user.email
                 userViewModel.nickname = user.nickname
-                userViewModel.targetEmail=user.email
+                userViewModel.targetEmail = user.email
                 scope.launch {
                     userDao.saveUserEmail(user.email)
                     userDao.saveUserPassword(password)
@@ -113,18 +122,27 @@ fun AuthenticationPage() {
         }
         loginViewModel.registerUserLiveData.observe(lifecycleOwner) { result ->
             val isSuccess = result.isSuccess
-            val verified=loginViewModel.verifyEmail(code = code)
-            if (isSuccess && verified!=null && verified) {
-                //TODO Scaffold 提示框
+            val verified = loginViewModel.verifyEmail(code = code)
+            if (isSuccess && verified != null && verified) {
+                val toast = Toast.makeText(context, "注册成功!", Toast.LENGTH_SHORT)
+                toast.show()
             } else {
-
+                val toast=Toast.makeText(context,"注册失败~请重试~",Toast.LENGTH_SHORT)
+                toast.show()
             }
         }
     }
 }
 
 @Composable
-fun MyInputBox(value: String, onValueChange: (String) -> Unit, tint: String,modifier: Modifier=Modifier,width:Float=0.8f,height:Dp=55.dp) {
+fun MyInputBox(
+    value: String,
+    onValueChange: (String) -> Unit,
+    tint: String,
+    modifier: Modifier = Modifier,
+    width: Float = 0.8f,
+    height: Dp = 55.dp
+) {
     BasicTextField(
         value = value,
         onValueChange = onValueChange,

@@ -13,6 +13,7 @@ class UserViewModel:ViewModel() {
     var email by mutableStateOf("")
     var nickname by mutableStateOf("")
     var targetEmail by mutableStateOf("")
+    var targetEmailForDetail by mutableStateOf("")
     var fanNum by mutableStateOf(0)
     var subNum by mutableStateOf(0)
     private val getLiveData = MutableLiveData<String>()

@@ -5,6 +5,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
@@ -17,27 +18,33 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImagePainter
+import coil.compose.SubcomposeAsyncImage
+import coil.compose.SubcomposeAsyncImageContent
 import com.benxinm.travelapp.R
 import com.benxinm.travelapp.data.Sort
+import com.benxinm.travelapp.util.noRippleClickable
 import kotlinx.coroutines.flow.Flow
 
 @Composable
-fun WaterfallLabel(@DrawableRes res:Int, text:String,
-                   likes:  Int,
+fun WaterfallLabel(url:String, text:String,
+                   likes:  Int,onSelected:()->Unit={},
                    onClick:(ScaleButtonState)->Unit) {
     Surface(
         shape = RoundedCornerShape(20.dp),
         modifier = Modifier
             .width(width = 215.dp)
-            .padding(5.dp), elevation = 5.dp
+            .padding(5.dp).noRippleClickable { onSelected() }, elevation = 5.dp
     ){
         Column {
-            Image(//TODO 加载网络图片
-                painter = painterResource(id = res),
-                modifier = Modifier.width(width = 200.dp),
-                contentScale = ContentScale.Fit,
-                contentDescription = ""
-            )
+            SubcomposeAsyncImage(model = url, contentScale = ContentScale.Fit, modifier = Modifier.width(200.dp), contentDescription = ""){
+                val state=painter.state
+                if (state is AsyncImagePainter.State.Loading || state is AsyncImagePainter.State.Error) {
+                    CircularProgressIndicator()
+                } else {
+                    SubcomposeAsyncImageContent()
+                }
+            }
             Box(modifier = Modifier.padding(horizontal = 10.dp)) {
                 Column(verticalArrangement = Arrangement.Center) {
                     Text(text = text)

@@ -1,5 +1,6 @@
 package com.benxinm.travelapp.ui.components
 
+import android.widget.Toast
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -8,6 +9,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
@@ -20,6 +22,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -29,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.benxinm.travelapp.R
+import com.benxinm.travelapp.logic.Repository
 import com.benxinm.travelapp.ui.authentication.MyInputBox
 import com.benxinm.travelapp.util.noRippleClickable
 import com.benxinm.travelapp.viewModel.DetailViewModel
@@ -37,14 +42,21 @@ import java.text.SimpleDateFormat
 
 
 const val topBarHeight = 40
-val list = listOf("1312321")
 
 @Composable
 fun DetailPage() {
     val detailViewModel: DetailViewModel = viewModel()
     val userViewModel: UserViewModel = viewModel()
+    val lifecycleOwner= LocalLifecycleOwner.current
+    val context= LocalContext.current
+    val listState = rememberLazyListState()
+    var page by remember {
+        mutableStateOf(1)
+    }
+    LaunchedEffect(key1 = userViewModel.targetEmailForDetail){
+        detailViewModel.getComments(3,userViewModel.targetEmailForDetail,1,page)
+    }
     DetailPageTopBar()
-
     Box(
         modifier = Modifier
             .systemBarsPadding()
@@ -52,7 +64,7 @@ fun DetailPage() {
             .padding(top = topBarHeight.dp)
             .background(Color.White)
     ) {
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
+        LazyColumn(modifier = Modifier.fillMaxSize(), state = listState) {
             item {
                 PictureContainer()
             }
@@ -65,6 +77,18 @@ fun DetailPage() {
         }
     }
     DetailPageBottomBar(detailViewModel = detailViewModel, userViewModel = userViewModel)
+    detailViewModel.addCommentLiveData.observe(lifecycleOwner){
+        if (it.isSuccess){
+            val toast=Toast.makeText(context,"评论成功",Toast.LENGTH_SHORT)
+            toast.show()
+        }
+    }
+    detailViewModel.getCommentLiveData.observe(lifecycleOwner){
+        val result=it.getOrNull()
+        if (result!=null){
+            detailViewModel.commentList.addAll(result)
+        }
+    }
 }
 
 @Composable
@@ -146,6 +170,7 @@ fun TextComponent() {
 
 @Composable
 fun Comment(username:String,text:String,timestamp:Long,headPortrait:String) {
+    val lifecycleOwner= LocalLifecycleOwner.current
     Box(modifier = Modifier.padding(horizontal = 8.dp, vertical = 5.dp)) {
         Row {
             CoilCircleImage(url = headPortrait,size = 30.dp)
@@ -165,18 +190,36 @@ fun Comment(username:String,text:String,timestamp:Long,headPortrait:String) {
         var state by remember {
             mutableStateOf(ScaleButtonState.IDLE)
         }
+        var likes by remember {
+            mutableStateOf(0)
+        }
         Row(
             horizontalArrangement = Arrangement.End,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(30.dp)
         ) {
+            AnimatedNumber(num = likes)
             AnimatedScaleButton(
                 state = state,
                 onToggle = {
                     state =
                         if (state == ScaleButtonState.IDLE) ScaleButtonState.ACTIVE else ScaleButtonState.IDLE
-                }, onClick = {},
+                }, onClick = { scaleButtonState ->
+                    if (scaleButtonState == ScaleButtonState.IDLE) {
+                        Repository.addLike("123", "123").observe(lifecycleOwner) {
+                            if (it.isSuccess) {
+                                likes++
+                            }
+                        }
+                    } else {
+                        Repository.cancelLike("456", "456").observe(lifecycleOwner) {
+                            if (it.isSuccess) {
+                                likes--
+                            }
+                        }
+                    }
+                },
                 size = 20.dp,
                 activeColor = Color.Red,
                 idleColor = Color.LightGray,
@@ -189,7 +232,6 @@ fun Comment(username:String,text:String,timestamp:Long,headPortrait:String) {
 
 @Composable
 fun DetailPageBottomBar(detailViewModel: DetailViewModel,userViewModel: UserViewModel ,modifier: Modifier = Modifier) {
-
     Row(verticalAlignment = Alignment.Bottom, modifier = modifier.fillMaxSize()) {
         Box(
             modifier = Modifier
@@ -212,19 +254,28 @@ fun DetailPageBottomBar(detailViewModel: DetailViewModel,userViewModel: UserView
                         .clip(RoundedCornerShape(30.dp))
                         .background(Color.Red)
                         .clickable {
-                            detailViewModel.commentList.add(
-                                com.benxinm.travelapp.data.CommentWithHead(
-                                    "1",
-                                    userViewModel.nickname,
-                                    "1",
+                            if (detailViewModel.inputText.isNotEmpty()) {
+                                detailViewModel.addComment(
+                                    userViewModel.email,
+                                    3,
                                     detailViewModel.inputText,
-                                    "1",
-                                    1,
-                                    1,
-                                    System.currentTimeMillis(), userViewModel.defaultPortrait
+                                    userViewModel.targetEmail,
+                                    1
                                 )
-                            )
-                            detailViewModel.inputText = ""
+                                detailViewModel.commentList.add(
+                                    com.benxinm.travelapp.data.CommentWithHead(//TODO 数据解决
+                                        "1",
+                                        userViewModel.nickname,
+                                        "1",
+                                        detailViewModel.inputText,
+                                        "1",
+                                        1,
+                                        1,
+                                        System.currentTimeMillis(), userViewModel.defaultPortrait
+                                    )
+                                )
+                                detailViewModel.inputText = ""
+                            }
                         }) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,

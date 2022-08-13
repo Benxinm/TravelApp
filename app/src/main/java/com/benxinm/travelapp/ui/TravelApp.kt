@@ -46,10 +46,13 @@ fun TravelApp() {
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(Page.MainPage.name) {
-//                MainPage()
-                DetailPage()
+                MainPage()
+//                DetailPage()
 //                AuthenticationPage()
             }
+//            composable("detailPage"){
+//                DetailPage()
+//            }
             composable(Page.Community.name) {
                 Community()
             }
