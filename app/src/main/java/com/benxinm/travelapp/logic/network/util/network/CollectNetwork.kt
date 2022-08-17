@@ -1,25 +1,35 @@
 package com.benxinm.travelapp.logic.network.util.network
 
+import com.benxinm.travelapp.logic.network.service.CollectService
 import com.benxinm.travelapp.logic.network.service.DetailService
 import com.benxinm.travelapp.logic.network.util.PythonServiceCreator
-import com.benxinm.travelapp.logic.network.util.network.DetailNetwork.await
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import retrofit2.http.Header
+import retrofit2.http.Path
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
-object DetailNetwork {
-    private val detailService=PythonServiceCreator.create(DetailService::class.java)
-    suspend fun addLike(type:String,target:String)= detailService.addLike(type, target).await()
-    suspend fun cancelLike(type:String,target:String)= detailService.cancelLike(type, target).await()
-    suspend fun addComment(token:String, email:String,type:Int,text:String,target: String,level:Int)= detailService.addComment(token,email, type, text, target, level).await()
-    suspend fun deleteComment(id:String)= detailService.deleteComment(id).await()
-    suspend fun updateComment(id: String,email: String,type: Int,text: String,target: String,level: Int,likes:Int)=
-        detailService.updateComment(id, email, type, text, target, level, likes).await()
-    suspend fun getComments(type: Int,target: String,level: Int,page:Int,pageSize:Int)=
-        detailService.getComments(type, target, level, page, pageSize).await()
+object CollectNetwork {
+    private val collectService = PythonServiceCreator.create(CollectService::class.java)
+    suspend fun addCollect(
+        token: String,
+        email: String,
+        type: Int,
+        target: String,
+        firstUrl: String
+    ) = collectService.addCollect(token, email, type, target, firstUrl).await()
+    suspend fun deleteCollect(
+        token: String,
+        id: String
+    ) = collectService.deleteCollect(token, id).await()
+    suspend fun updateCollect(token: String, email: String,type: Int,target: String, firstUrl: String)=
+        collectService.updateCollect(token,email, type, target, firstUrl).await()
+    suspend fun getCollects(token: String,email: String,type: Int,page: Int,pageSize: Int)=
+        collectService.getCollects(token,email, type, page, pageSize).await()
+    suspend fun getCollectCount(token: String,target: String)= collectService.getCollectCount(token,target).await()
     private suspend fun <T> Call<T>.await(): T {
         return suspendCoroutine { continuation ->
             enqueue(object : Callback<T> {
@@ -30,6 +40,7 @@ object DetailNetwork {
                         RuntimeException("response body is null")
                     )
                 }
+
                 override fun onFailure(call: Call<T>, t: Throwable) {
                     continuation.resumeWithException(t)
                 }

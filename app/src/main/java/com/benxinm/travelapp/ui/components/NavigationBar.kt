@@ -1,24 +1,17 @@
 package com.benxinm.travelapp.ui.components
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.ripple.rememberRipple
-
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,19 +23,16 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.benxinm.travelapp.data.Page
-import com.benxinm.travelapp.ui.theme.Purple200
-import com.benxinm.travelapp.ui.theme.Purple500
-import com.benxinm.travelapp.viewModel.DetailViewModel
 
-
-private const val TabFadeInAnimationDuration = 100
-private const val TabFadeOutAnimationDuration = 50
-private const val TabFadeInAnimationDelay = 50
 
 @Composable
-fun NavigationBar(allPages: List<Page>, onTabSelected: (Page) -> Unit, currentPage: Page,boolean: Boolean) {
+fun NavigationBar(
+    allPages: List<Page>,
+    onTabSelected: (Page) -> Unit,
+    currentPage: Page,
+    boolean: Boolean
+) {
     AnimatedVisibility(
         visible = boolean, enter = slideInVertically(initialOffsetY = { it }),
     ) {
@@ -62,6 +52,7 @@ fun NavigationBar(allPages: List<Page>, onTabSelected: (Page) -> Unit, currentPa
                         onSelected = { onTabSelected(page) },
                         selected = currentPage == page,
                         iconInt = page.iconInt,
+                        selectedIconInt = page.selectedIconInt,
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -76,21 +67,10 @@ private fun PageTab(
     onSelected: () -> Unit,
     selected: Boolean,
     iconInt: Int,
+    selectedIconInt: Int,
     modifier: Modifier = Modifier
 ) {
-    val color = Purple500
-    val durationMillis = if (selected) TabFadeInAnimationDuration else TabFadeOutAnimationDuration
-    val animSpec = remember {
-        tween<Color>(
-            durationMillis = durationMillis,
-            easing = LinearEasing,
-            delayMillis = TabFadeInAnimationDelay
-        )
-    }
-    val tabTintColor by animateColorAsState(
-        targetValue = if (selected) color else Purple200,
-        animationSpec = animSpec
-    )
+
     Column(
         modifier = modifier
             .height(80.dp)
@@ -109,11 +89,10 @@ private fun PageTab(
             .clearAndSetSemantics { contentDescription = text },
         horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center
     ) {
-        Icon(
-            painter = painterResource(id = iconInt),
-            contentDescription = text,
-            tint = tabTintColor,
-            modifier = Modifier.height(32.dp),
+        Image(
+            painter = painterResource(id = if (selected) selectedIconInt else iconInt),
+            contentDescription =text,
+            modifier = Modifier.height(32.dp)
         )
         Text(text = text)
     }

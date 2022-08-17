@@ -5,10 +5,7 @@ import androidx.lifecycle.liveData
 import com.benxinm.travelapp.data.User
 import com.benxinm.travelapp.data.responseModel.PostDetailModel
 import com.benxinm.travelapp.data.responseModel.PostModel
-import com.benxinm.travelapp.logic.network.util.network.CommunityNetwork
-import com.benxinm.travelapp.logic.network.util.network.DetailNetwork
-import com.benxinm.travelapp.logic.network.util.network.LoginNetwork
-import com.benxinm.travelapp.logic.network.util.network.UserNetwork
+import com.benxinm.travelapp.logic.network.util.network.*
 import kotlinx.coroutines.Dispatchers
 
 object Repository {
@@ -124,16 +121,20 @@ object Repository {
         emit(result)
     }
 
-    fun addComment(username: String, type: Int, word: String, target: String, level: Int) =
+    fun addComment(token:String,username: String, type: Int, word: String, target: String, level: Int) =
         liveData(Dispatchers.IO) {
             val result = try {
-                val response = DetailNetwork.addComment(username, type, word, target, level)
+                Log.d("motherfucker","fuck1")
+                val response = DetailNetwork.addComment(token,username, type, word, target, level)
+                Log.d("motherfucker",response.code.toString())
                 if (response.code == 1) {
+                    Log.d("received","${response.msg}")
                     Result.success(true)
                 } else {
                     Result.failure(RuntimeException("response status is${response.msg}"))
                 }
             } catch (e: Exception) {
+                Log.d("motherfucker","fuck")
                 Result.failure(e)
             }
             emit(result)
@@ -246,4 +247,80 @@ object Repository {
         }
         emit(result)
     }
+    /**
+     * Collect
+     */
+    fun addCollect(token: String,email: String, type: Int, target: String,firstUrl:String) =
+        liveData(Dispatchers.IO) {
+            val result = try {
+                val response = CollectNetwork.addCollect(token, email, type, target, firstUrl)
+                if (response.code == 1) {
+                    Result.success(response.data)
+                } else {
+                    Result.failure(RuntimeException("response status is${response.msg}"))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+            emit(result)
+        }
+
+    fun deleteCollect(token: String,id: String) =
+        liveData(Dispatchers.IO) {
+            val result = try {
+                val response = CollectNetwork.deleteCollect(token, id)
+                if (response.code == 1) {
+                    Result.success(response.data)
+                } else {
+                    Result.failure(RuntimeException("response status is${response.msg}"))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+            emit(result)
+        }
+
+    fun updateCollect(token: String,email: String, type: Int, target: String,firstUrl:String) =
+        liveData(Dispatchers.IO) {
+            val result = try {
+                val response = CollectNetwork.updateCollect(token, email, type, target, firstUrl)
+                if (response.code == 1) {
+                    Result.success(response.data)
+                } else {
+                    Result.failure(RuntimeException("response status is${response.msg}"))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+            emit(result)
+        }
+
+    fun getCollects(token: String,email: String,type: Int,page: Int,pageSize: Int) =
+        liveData(Dispatchers.IO) {
+            val result = try {
+                val response = CollectNetwork.getCollects(token, email, type, page, pageSize)
+                if (response.code == 1) {
+                    Result.success(response.data)
+                } else {
+                    Result.failure(RuntimeException("response status is${response.msg}"))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+            emit(result)
+        }
+    fun getCollectCount(token: String, target: String) =
+        liveData(Dispatchers.IO) {
+            val result = try {
+                val response = CollectNetwork.getCollectCount(token,target)
+                if (response.code == 1) {
+                    Result.success(response.map["count"])
+                } else {
+                    Result.failure(RuntimeException("response status is${response.msg}"))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+            emit(result)
+        }
 }

@@ -22,6 +22,7 @@ interface DetailService {
     @FormUrlEncoded
     @POST("/comment/add")
     fun addComment(
+        @Header("token") token:String,
         @Field("userName") email: String,
         @Field("type") type: Int,
         @Field("word") text: String,
@@ -34,6 +35,7 @@ interface DetailService {
     ):Call<CommonResult<String>>
     @PUT("/comment/update")
     fun updateComment(
+
         @Field("id") id:String,
         @Field("userName") email: String,
         @Field("type") type: Int,

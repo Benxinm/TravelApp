@@ -111,11 +111,12 @@ fun AuthenticationPage() {
         loginViewModel.userLiveData.observe(lifecycleOwner) { result ->
             val user = result.getOrNull()
             if (user != null) {
-                userViewModel.email = user.email
-                userViewModel.nickname = user.nickname
-                userViewModel.targetEmail = user.email
+                userViewModel.token=user["token"]!!
+                userViewModel.email = user["user_name"]!!
+                userViewModel.nickname = user["nickname"]!!
+                userViewModel.targetEmail = user["user_name"]!!
                 scope.launch {
-                    userDao.saveUserEmail(user.email)
+                    userDao.saveUserEmail(userViewModel.email)
                     userDao.saveUserPassword(password)
                 }
             }

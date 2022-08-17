@@ -1,5 +1,6 @@
 package com.benxinm.travelapp.ui.components
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -48,7 +49,6 @@ import java.text.SimpleDateFormat
 
 
 const val topBarHeight = 40
-
 @Composable
 fun DetailPage() {
     val detailViewModel: DetailViewModel = viewModel()
@@ -88,6 +88,8 @@ fun DetailPage() {
         DetailPageBottomBar(detailViewModel = detailViewModel, userViewModel = userViewModel)
     }
     detailViewModel.addCommentLiveData.observe(lifecycleOwner) {
+        Log.d("motherfucker","get it")
+        Log.d("motherfucker",if (it.isSuccess) "yes" else "no")
         if (it.isSuccess) {
             val toast = Toast.makeText(context, "评论成功", Toast.LENGTH_SHORT)
             toast.show()
@@ -286,6 +288,7 @@ fun DetailPageBottomBar(
                         .clickable {
                             if (detailViewModel.inputText.isNotEmpty()) {
                                 detailViewModel.addComment(
+                                    userViewModel.token,//TODO 之后改viewModel拿
                                     userViewModel.email,
                                     3,
                                     detailViewModel.inputText,

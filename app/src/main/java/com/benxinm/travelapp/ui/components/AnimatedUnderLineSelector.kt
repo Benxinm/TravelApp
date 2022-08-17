@@ -1,9 +1,6 @@
 package com.benxinm.travelapp.ui.components
 
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateDp
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.updateTransition
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.TabPosition
@@ -35,10 +32,33 @@ fun AnimatedUnderLineSelector(
             UnderlineIndicator(tabPositions = tabPositions, tabType = tabType)
         }, divider = { Spacer(modifier = Modifier.width(10.dp)) }) {
         TextTab(title = "推荐", tabType == Type.Recommendation) { onTabSelected(Type.Recommendation) }
-        TextTab(title = "老字号", tabType == Type.Restaurant, modifier = Modifier.offset(x = (-8).dp)) { onTabSelected(Type.Restaurant) }
+        TextTab(
+            title = "老字号",
+            tabType == Type.Restaurant,
+            modifier = Modifier.offset(x = (-8).dp)
+        ) { onTabSelected(Type.Restaurant) }
         TextTab(title = "海鲜", tabType == Type.SeaFood) { onTabSelected(Type.SeaFood) }
     }
 }
+
+@Composable
+fun AnimatedUnderLinerSelector02(
+    backgroundColor: Color,
+    tabTopic: Topic,
+    onTabSelected: (topic: Topic) -> Unit,
+) {
+    TabRow(
+        modifier = Modifier.width(250.dp),
+        selectedTabIndex = tabTopic.ordinal,
+        backgroundColor = backgroundColor,
+        indicator = { tabPositions: List<TabPosition> ->
+            UnderlineIndicator02(tabPositions = tabPositions, tabTopic = tabTopic)
+        }, divider = { Spacer(modifier = Modifier.width(10.dp)) }) {
+        TextTab(title = "简介", tabTopic == Topic.First) { onTabSelected(Topic.First) }
+        TextTab(title = "做法", tabTopic == Topic.Second) { onTabSelected(Topic.Second) }
+    }
+}
+
 
 @Composable
 private fun TextTab(
@@ -114,6 +134,61 @@ private fun UnderlineIndicator(tabPositions: List<TabPosition>, tabType: Type) {
     }
 }
 
+@Composable
+private fun UnderlineIndicator02(tabPositions: List<TabPosition>, tabTopic: Topic) {
+    val transition = updateTransition(tabTopic, label = null)
+    val indicatorLeft by transition.animateDp(transitionSpec = {
+        if (Topic.First isTransitioningTo Topic.Second) {
+            spring(stiffness = Spring.StiffnessLow)
+        } else {
+            spring(stiffness = Spring.StiffnessHigh)
+        }
+    }, label = "Indicator Left") { type ->
+        tabPositions[type.ordinal].left
+    }
+    val indicatorRight by transition.animateDp(transitionSpec = {
+        if (Topic.First isTransitioningTo Topic.Second) {
+            spring(stiffness = Spring.StiffnessHigh)
+        } else {
+            spring(stiffness = Spring.StiffnessLow)
+        }
+    }, label = "Indicator Right") { type ->
+        tabPositions[type.ordinal].right
+    }
+    Box(
+        Modifier
+            .fillMaxSize()
+            .wrapContentSize(align = Alignment.BottomStart)
+            .offset(x = indicatorLeft)
+            .width(indicatorRight - indicatorLeft)
+            .padding(4.dp)
+            .fillMaxSize()
+            .height(3.dp)
+    ) {
+        Canvas(
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.BottomStart)
+        ) {
+            drawLine(
+                Color.Yellow,
+                Offset(x = 0f, y = 0f),
+                Offset(
+                    x = (indicatorRight - indicatorLeft + 25.dp).value,
+                    0f
+                ),
+                strokeWidth = 13f,
+                cap = StrokeCap.Round
+            )
+        }
+    }
+}
+
+
 enum class Type {
     Recommendation, Restaurant, SeaFood
+}
+
+enum class Topic {
+    First, Second
 }

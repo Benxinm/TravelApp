@@ -2,22 +2,26 @@ package com.benxinm.travelapp.data
 
 import com.benxinm.travelapp.R
 
-enum class Page(val text: String, val iconInt: Int) {
+enum class Page(val text: String, val iconInt: Int,val selectedIconInt:Int) {
     MainPage(
         text = "首页",
-        iconInt = R.drawable.ic_home_filled
+        iconInt = R.drawable.ic_mainpage01,
+        selectedIconInt=R.drawable.ic_mainpage02
     ),
     Community(
         text = "社区",
-        iconInt = R.drawable.ic_message_filled
+        iconInt = R.drawable.ic_social01,
+        selectedIconInt=R.drawable.ic_social02
     ),
     Me(
         text = "我的",
-        iconInt = R.drawable.ic_me_filled
+        iconInt = R.drawable.ic_mine01,
+        selectedIconInt = R.drawable.ic_mine02
     ),
     Detail(
         text = "详情",
-        iconInt = 0
+        iconInt = 0,
+        selectedIconInt = 0
     );
 
     companion object{

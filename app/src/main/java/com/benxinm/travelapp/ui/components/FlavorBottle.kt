@@ -1,10 +1,7 @@
 package com.benxinm.travelapp.ui.components
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -66,19 +63,9 @@ fun FlavorBottle(flavor: Flavor,degree:Float) {
             Flavor.Sweet-> R.drawable.ic_sweet
             Flavor.Salty-> R.drawable.ic_salty
         } ), modifier = Modifier
-            .size(35.dp)
-            .align(Alignment.BottomEnd) ,contentDescription = "标志")
+            .size(25.dp)
+            .align(Alignment.BottomEnd).offset(x = 8.dp, y = 5.dp) ,contentDescription = "标志")
     }
 }
 
-@Preview
-@Composable
-fun PreviewBox() {
-    Row {
-        FlavorBottle(flavor = Flavor.Sour, degree = 0f)
-        FlavorBottle(flavor = Flavor.Sweet, degree = 0.25f)
-        FlavorBottle(flavor = Flavor.Salty, degree = 0.5f)
-        FlavorBottle(flavor = Flavor.Bitter, degree = 0.75f)
-        FlavorBottle(flavor = Flavor.Spicy, degree = 1f)
-    }
-}
+

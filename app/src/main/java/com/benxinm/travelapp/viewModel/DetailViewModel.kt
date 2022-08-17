@@ -16,13 +16,14 @@ class DetailViewModel : ViewModel() {
     private val pageSize=10
     var isChecking by mutableStateOf(false)
     var inputText by mutableStateOf("")
-    var detailModel:PostDetailModel?=null
+    var detailModel:PostDetailModel?=PostDetailModel("benxinm","123","123",1111L,1,1,"1324561")
     val commentList = mutableStateListOf<CommentWithHead>()
     val urlList= mutableStateListOf<String>()
     private val _addCommentLiveData = MutableLiveData<AddCommentModel>()
     var target by mutableStateOf("")
     val addCommentLiveData = Transformations.switchMap(_addCommentLiveData) { addCommentModel ->
         Repository.addComment(
+            addCommentModel.token,
             addCommentModel.userName,
             addCommentModel.type,
             addCommentModel.word,
@@ -30,8 +31,8 @@ class DetailViewModel : ViewModel() {
             addCommentModel.level
         )
     }
-    fun addComment(username: String, type: Int, word: String, target: String, level: Int) {
-        _addCommentLiveData.value = AddCommentModel(username, type, word, target, level)
+    fun addComment(token:String, username: String, type: Int, word: String, target: String, level: Int) {
+        _addCommentLiveData.value = AddCommentModel(token,username, type, word, target, level)
     }
 
     private val _getCommentLiveData=MutableLiveData<GetCommentModel>()

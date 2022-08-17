@@ -13,7 +13,7 @@ interface LoginService {
     fun login(
         @Field("user_name") username: String,
         @Field("password") password: String
-    ): Call<CommonResultPython<User>>
+    ): Call<CommonResultPython<HashMap<String,String>>>
 
     @FormUrlEncoded
     @POST("/register")

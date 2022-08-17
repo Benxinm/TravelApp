@@ -3,13 +3,12 @@ package com.benxinm.travelapp.data
 data class Comment(
     val id: String,
     val userName: String,
-    val type: String,
+    val type: Int,
     val word: String,
     val target: String,
     val level: Int,
     val grade:Int,
-    val time:Long,
-    val head:String
+    val time:String
 )
 
 data class CommentWithHead(

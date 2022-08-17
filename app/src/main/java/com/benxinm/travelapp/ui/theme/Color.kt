@@ -9,5 +9,5 @@ val Purple700 = Color(0xFF3700B3)
 val Teal200 = Color(0xFF03DAC5)
 val BackgroundGrey=Color(0xFFf9f9f9)
 val white7blue=Color(0xFFf8fcfd).convert(ColorSpaces.CieXyz)
-
+val white=Color(0xFFf9f9f9).convert(ColorSpaces.CieXyz)
 val blue8=Color(0xFF0084ff).convert(ColorSpaces.CieXyz)

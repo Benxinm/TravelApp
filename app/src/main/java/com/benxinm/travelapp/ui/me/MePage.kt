@@ -34,6 +34,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.benxinm.travelapp.R
+import com.benxinm.travelapp.data.Flavor
+import com.benxinm.travelapp.ui.components.FlavorBottle
+import com.benxinm.travelapp.ui.theme.white
 import com.benxinm.travelapp.viewModel.UserViewModel
 
 @Composable
@@ -66,7 +69,7 @@ fun MePage() {
             item {
                 Box {
                     Surface(
-                        color = Color.Cyan,
+                        color = white,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(1500.dp)
@@ -103,10 +106,20 @@ fun MePage() {
                                Text(text = "走遍天下，吃遍天下",modifier = Modifier.padding(horizontal = 6.dp))
                                Spacer(modifier = Modifier.height(10.dp))
                                Surface(modifier = Modifier
-                                   .height(100.dp)
+                                   .height(120.dp)
                                    .fillMaxWidth(),shape = RoundedCornerShape(10.dp),elevation = 10.dp) {
                                    Box(modifier = Modifier.padding(10.dp)) {
-                                       Text(text = "口味")
+                                       Column {
+                                           Text(text = "口味", modifier = Modifier.padding(start = 5.dp))
+                                           Spacer(modifier = Modifier.height(8.dp))
+                                           Row (modifier = Modifier.padding(start = 10.dp)){
+                                               FlavorBottle(flavor = Flavor.Sour, degree = 0f)
+                                               FlavorBottle(flavor = Flavor.Sweet, degree = 0.25f)
+                                               FlavorBottle(flavor = Flavor.Salty, degree = 0.5f)
+                                               FlavorBottle(flavor = Flavor.Bitter, degree = 0.75f)
+                                               FlavorBottle(flavor = Flavor.Spicy, degree = 1f)
+                                           }
+                                       }
                                    }
                                }
                                Spacer(modifier = Modifier.height(20.dp))

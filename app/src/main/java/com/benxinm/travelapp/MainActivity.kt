@@ -16,6 +16,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.view.WindowCompat
 import com.benxinm.travelapp.ui.TravelApp
 import com.benxinm.travelapp.ui.components.DetailPage
+import com.benxinm.travelapp.ui.main.FoodPage
 import com.benxinm.travelapp.ui.me.MePage
 import com.benxinm.travelapp.ui.theme.TravelAppTheme
 
@@ -31,7 +32,8 @@ class MainActivity : ComponentActivity() {
                 rememberSystemUiController().setStatusBarColor(
                     Color.Transparent, darkIcons = MaterialTheme.colors.isLight)
                 Box {
-                    TravelApp()
+//                    TravelApp()
+                    FoodPage()
                 }
             }
         }
