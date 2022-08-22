@@ -3,10 +3,13 @@ package com.benxinm.travelapp.logic
 import android.util.Log
 import androidx.lifecycle.liveData
 import com.benxinm.travelapp.data.User
+import com.benxinm.travelapp.data.responseModel.MyCollectModel
 import com.benxinm.travelapp.data.responseModel.PostDetailModel
 import com.benxinm.travelapp.data.responseModel.PostModel
+import com.benxinm.travelapp.data.responseModel.TwoParamShowModel
 import com.benxinm.travelapp.logic.network.util.network.*
 import kotlinx.coroutines.Dispatchers
+import okhttp3.MultipartBody
 
 object Repository {
     /**
@@ -30,6 +33,7 @@ object Repository {
     fun register(username: String, nickname: String, password: String, rePassword: String) =
         liveData(Dispatchers.IO) {
             val result = try {
+                Log.d("Login R","1")
                 val registerResponse =
                     LoginNetwork.register(username, nickname, password, rePassword)
                 if (registerResponse.code == 200) {
@@ -39,6 +43,7 @@ object Repository {
                     Result.failure(RuntimeException("response status is${registerResponse.message}"))
                 }
             } catch (e: Exception) {
+                Log.d("Login R","2")
                 Result.failure(e)
             }
             emit(result)
@@ -46,6 +51,7 @@ object Repository {
 
     fun sendEmail(email: String) = liveData(Dispatchers.IO) {
         val result = try {
+            Log.d("Login 1","1")
             val sendEmailResponse = LoginNetwork.sendEmail(email)
             if (sendEmailResponse.code == 200) {
                 Result.success(true)
@@ -53,6 +59,7 @@ object Repository {
                 Result.failure(RuntimeException("response status is${sendEmailResponse.message}"))
             }
         } catch (e: Exception) {
+            Log.d("Login 1","2")
             Result.failure(e)
         }
         emit(result)
@@ -60,6 +67,8 @@ object Repository {
 
     fun verifyCode(code: String) = liveData(Dispatchers.IO) {
         val result = try {
+            Log.d("Login v","1")
+
             val codeResponse = LoginNetwork.verifyCode(code)
             if (codeResponse.code == 200) {
                 Result.success(true)
@@ -67,6 +76,7 @@ object Repository {
                 Result.failure(RuntimeException("response status is${codeResponse.message}"))
             }
         } catch (e: Exception) {
+            Log.d("Login v","2")
             Result.failure(e)
         }
         emit(result)
@@ -88,7 +98,41 @@ object Repository {
         }
         emit(result)
     }
+    fun uploadImage(email: String,file:MultipartBody.Part)= liveData(Dispatchers.IO) {
+        val result=try {
+            val response=UserNetwork.uploadImage(email, file)
+            if (response.code==200){
+                Result.success(response.data)
+            }else{
+                Result.failure(RuntimeException("response status is${response.message}"))
+            }
+        }catch (e: Exception) {
+            Result.failure(e)
+        }
+        emit(result)
+    }
 
+    fun getMyCollect(email: String)= liveData(Dispatchers.IO) {
+        val result=try {
+            val response=UserNetwork.getFoodCollect(email)
+            val response1=UserNetwork.getStoreCollect(email)
+            if (response.code==200){
+                val list= mutableListOf<MyCollectModel>()
+                response.data.forEach {
+                    list.add(MyCollectModel(it[0].toLong(),it[1],it[2]))
+                }
+                response1.data.forEach {
+                    list.add(MyCollectModel(it[0].toLong(),it[1],it[2]))
+                }
+                Result.success(list.toList())
+            }else{
+                Result.failure(RuntimeException("response status is${response.message}"))
+            }
+        }catch (e: Exception) {
+            Result.failure(e)
+        }
+        emit(result)
+    }
     /**
      * Detail
      */
@@ -317,6 +361,96 @@ object Repository {
                     Result.success(response.map["count"])
                 } else {
                     Result.failure(RuntimeException("response status is${response.msg}"))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+            emit(result)
+        }
+    /**
+     * OtherDetail
+     */
+    fun getIntroHis( target: String) =
+        liveData(Dispatchers.IO) {
+            val result = try {
+                val response = OtherDetailNetwork.getIntroHis(target)
+                if (response.code == 200) {
+                    Result.success(response.data)
+                } else {
+                    Result.failure(RuntimeException("response status is${response.message}"))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+            emit(result)
+        }
+    fun getFood( target: String) =
+        liveData(Dispatchers.IO) {
+            val result = try {
+                val response = OtherDetailNetwork.getFood(target)
+                if (response.code == 200) {
+                    val list = mutableListOf<TwoParamShowModel>()
+                    response.data.forEach {
+                        list.add(TwoParamShowModel(it[0],it[1]))
+                    }
+                    Result.success(list.toList())
+                } else {
+                    Result.failure(RuntimeException("response status is${response.message}"))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+            emit(result)
+        }
+    fun getRelatedSight( target: String) =
+        liveData(Dispatchers.IO) {
+            val result = try {
+                val response = OtherDetailNetwork.getRelatedSight(target)
+                if (response.code == 200) {
+                    val list = mutableListOf<TwoParamShowModel>()
+                    response.data.forEach {
+                        list.add(TwoParamShowModel(it[0],it[1]))
+                    }
+                    Result.success(list.toList())
+                } else {
+                    Result.failure(RuntimeException("response status is${response.message}"))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+            emit(result)
+        }
+    fun getRecipe( target: String) =
+        liveData(Dispatchers.IO) {
+            val result = try {
+                val response = OtherDetailNetwork.getRecipe(target)
+                if (response.code == 200) {
+                    val list = mutableListOf<TwoParamShowModel>()
+                    response.data.forEach {
+                        list.add(TwoParamShowModel(it[0],it[1]))
+                    }
+                    Result.success(list.toList())
+                } else {
+                    Result.failure(RuntimeException("response status is${response.message}"))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+            emit(result)
+        }
+
+    fun getRestaurant( target: String) =
+        liveData(Dispatchers.IO) {
+            val result = try {
+                val response = OtherDetailNetwork.getRestaurant(target)
+                if (response.code == 200) {
+                    val list = mutableListOf<TwoParamShowModel>()
+                    response.data.forEach {
+                        list.add(TwoParamShowModel(it[0],it[1]))
+                    }
+                    Result.success(list.toList())
+                } else {
+                    Result.failure(RuntimeException("response status is${response.message}"))
                 }
             } catch (e: Exception) {
                 Result.failure(e)

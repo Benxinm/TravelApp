@@ -78,17 +78,17 @@ fun Community(navController: NavController) {
                                 maxColumnWidth = 215.dp,
                                 modifier = Modifier.padding(horizontal = 15.dp)
                             ) {
-                                communityViewModel.postList/*list*/.forEach { label ->
+                                /*communityViewModel.postList*/list.forEach { label ->
                                     val likes = remember {
                                         mutableStateOf(0)
                                     }
                                     WaterfallLabel(
-                                        url = label.picUrl,
-                                        text = label.title,
+                                        url = label.imgRes/*picUrl*/,
+                                        text = label.text/*title*/,
                                         likes = likes.value, onSelected = {
-                                            detailViewModel.target=label.id
+                                            /*detailViewModel.target=label.id
                                             communityViewModel.getUrls(label.id)
-                                            communityViewModel.getPostDetail(label.id)
+                                            communityViewModel.getPostDetail(label.id)*/
                                             navController.navigate(Page.Detail.name)
                                         }
                                     ) { scaleButtonState ->

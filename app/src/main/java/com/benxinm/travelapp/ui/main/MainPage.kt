@@ -21,11 +21,14 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.benxinm.travelapp.R
+import com.benxinm.travelapp.data.Page
 import com.benxinm.travelapp.ui.components.AnimatedUnderLineSelector
 import com.benxinm.travelapp.ui.components.HomeSearchBar
 import com.benxinm.travelapp.ui.components.Location
 import com.benxinm.travelapp.ui.components.Type
+import com.benxinm.travelapp.util.noRippleClickable
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.PagerState
@@ -35,7 +38,7 @@ import java.nio.file.attribute.BasicFileAttributeView
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
-fun MainPage() {
+fun MainPage(navController: NavController) {
     var tabType by remember { mutableStateOf(Type.Recommendation) }
     Box(modifier = Modifier.systemBarsPadding()) {
         Box(modifier = Modifier.padding(horizontal = 10.dp)) {
@@ -53,9 +56,10 @@ fun MainPage() {
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()
                 ) {
-                    BasicItem(res = R.drawable.ic_shop, text = "美味店铺", modifier = Modifier.weight(1f))
+                    BasicItem(res = R.drawable.ic_shop, text = "美味店铺", modifier = Modifier.weight(1f).noRippleClickable { navController.navigate(Page.Store.name) })
                     BasicItem(res = R.drawable.ic_speciality, text = "特色菜肴",Modifier.weight(1f))
-                    BasicItem(res = R.drawable.ic_deliciouslibrary, text = "美食攻略",Modifier.weight(1f))
+                    BasicItem(res = R.drawable.ic_deliciouslibrary, text = "美食攻略",Modifier.weight(1f).noRippleClickable { navController.navigate(
+                        Page.Guide.name) })
                 }
                 AnimatedUnderLineSelector(
                     backgroundColor = Color.Transparent,

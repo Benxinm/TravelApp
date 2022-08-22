@@ -1,31 +1,27 @@
 package com.benxinm.travelapp.ui
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.Card
 import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import coil.compose.AsyncImage
 import com.benxinm.travelapp.data.Page
-import com.benxinm.travelapp.ui.authentication.AuthenticationPage
 import com.benxinm.travelapp.ui.community.Community
-import com.benxinm.travelapp.ui.components.DetailPage
+import com.benxinm.travelapp.ui.detail.DetailPage
 import com.benxinm.travelapp.ui.components.NavigationBar
-import com.benxinm.travelapp.ui.components.StaggeredVerticalGrid
+import com.benxinm.travelapp.ui.detail.GuideDetail
+import com.benxinm.travelapp.ui.main.GuidePage
 import com.benxinm.travelapp.ui.main.MainPage
+import com.benxinm.travelapp.ui.main.MapPage
+import com.benxinm.travelapp.ui.main.StorePage
+import com.benxinm.travelapp.ui.me.EditPage
+import com.benxinm.travelapp.ui.me.FlavorSelectPage
 import com.benxinm.travelapp.ui.me.MePage
-import com.benxinm.travelapp.viewModel.DetailViewModel
+import com.benxinm.travelapp.viewModel.UserViewModel
 
 @Composable
 fun TravelApp() {
@@ -36,6 +32,7 @@ fun TravelApp() {
     var check by remember {
         mutableStateOf(true)
     }
+    val userViewModel:UserViewModel= viewModel()
     Scaffold(bottomBar = {
         NavigationBar(
             allPages = allPages,
@@ -54,7 +51,7 @@ fun TravelApp() {
                 LaunchedEffect(key1 = Unit) {
                     check = true
                 }
-                MainPage()
+                MainPage(navController)
             }
             composable(Page.Community.name) {
                 LaunchedEffect(key1 = Unit) {
@@ -66,13 +63,49 @@ fun TravelApp() {
                 LaunchedEffect(key1 = Unit) {
                     check = false
                 }
-                DetailPage()
+                DetailPage(navController)
+            }
+            composable(Page.Personal.name){
+                LaunchedEffect(key1 = Unit) {
+                    check = false
+                }
+                EditPage(navController)
+            }
+            composable(Page.FlavourBottle.name){
+                LaunchedEffect(key1 = Unit) {
+                    check = false
+                }
+                FlavorSelectPage(navController,userViewModel)
             }
             composable(Page.Me.name) {
                 LaunchedEffect(key1 = Unit) {
                     check = true
                 }
-                MePage()
+                MePage(navController,userViewModel)
+            }
+            composable(Page.Guide.name){
+                LaunchedEffect(key1 = Unit) {
+                    check = false
+                }
+                GuidePage(navController = navController)
+            }
+            composable(Page.Store.name){
+                LaunchedEffect(key1 = Unit) {
+                    check = false
+                }
+                StorePage(navController = navController)
+            }
+            composable(Page.Map.name){
+                LaunchedEffect(key1 = Unit) {
+                    check = false
+                }
+                MapPage(navController = navController)
+            }
+            composable(Page.GuideDetail.name){
+                LaunchedEffect(key1 = Unit) {
+                    check = false
+                }
+                GuideDetail(navController = navController)
             }
         }
     }

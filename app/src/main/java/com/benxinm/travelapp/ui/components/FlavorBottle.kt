@@ -7,12 +7,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.benxinm.travelapp.R
 import com.benxinm.travelapp.data.Flavor
 
 @Composable
-fun FlavorBottle(flavor: Flavor,degree:Float) {
+fun FlavorBottle(flavor: Flavor,degree:Float,size: Dp =25.dp,bottleSize:Dp=300.dp) {
     Box(modifier = Modifier.padding(horizontal = 8.dp)) {
        Image(painter = painterResource(id = when(flavor){
            Flavor.Bitter->when(degree){
@@ -63,7 +64,7 @@ fun FlavorBottle(flavor: Flavor,degree:Float) {
             Flavor.Sweet-> R.drawable.ic_sweet
             Flavor.Salty-> R.drawable.ic_salty
         } ), modifier = Modifier
-            .size(25.dp)
+            .size(size)
             .align(Alignment.BottomEnd).offset(x = 8.dp, y = 5.dp) ,contentDescription = "标志")
     }
 }

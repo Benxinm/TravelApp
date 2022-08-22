@@ -1,10 +1,8 @@
-package com.benxinm.travelapp.ui.components
+package com.benxinm.travelapp.ui.detail
 
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -31,15 +29,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import coil.compose.AsyncImagePainter
 import coil.compose.SubcomposeAsyncImage
 import coil.compose.SubcomposeAsyncImageContent
 import com.benxinm.travelapp.R
 import com.benxinm.travelapp.logic.Repository
 import com.benxinm.travelapp.ui.authentication.MyInputBox
+import com.benxinm.travelapp.ui.components.*
 import com.benxinm.travelapp.ui.main.DotsIndicator
 import com.benxinm.travelapp.util.noRippleClickable
-import com.benxinm.travelapp.util.offsetPercent
 import com.benxinm.travelapp.viewModel.DetailViewModel
 import com.benxinm.travelapp.viewModel.UserViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -50,7 +49,7 @@ import java.text.SimpleDateFormat
 
 const val topBarHeight = 40
 @Composable
-fun DetailPage() {
+fun DetailPage(navController: NavController) {
     val detailViewModel: DetailViewModel = viewModel()
     val userViewModel: UserViewModel = viewModel()
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -65,7 +64,7 @@ fun DetailPage() {
     Box(modifier = Modifier
         .fillMaxSize()
     ) {
-        DetailPageTopBar(detailViewModel)
+        DetailPageTopBar(navController)
         Box(
             modifier = Modifier
                 .systemBarsPadding()
@@ -104,7 +103,7 @@ fun DetailPage() {
 }
 
 @Composable
-fun DetailPageTopBar(detailViewModel: DetailViewModel) {
+fun DetailPageTopBar(navController: NavController) {
     Box(modifier = Modifier.background(Color.White)) {
         Box(modifier = Modifier.systemBarsPadding()) {
             Row(
@@ -116,9 +115,9 @@ fun DetailPageTopBar(detailViewModel: DetailViewModel) {
                     painter = painterResource(id = R.drawable.ic_back),
                     contentDescription = "返回",
                     modifier = Modifier
-                        .size(20.dp)
+                        .size(25.dp)
                         .clip(CircleShape)
-                        .noRippleClickable { detailViewModel.isChecking = false }
+                        .noRippleClickable {navController.popBackStack()}
                 )
                 CircleImage(res = R.drawable.dla01, size = 30.dp)
                 Text(text = "Benxinm", modifier = Modifier.padding(start = 10.dp))
@@ -333,5 +332,5 @@ fun DetailPageBottomBar(
 @Preview
 @Composable
 fun PreviewBar() {
-    DetailPage()
+//    DetailPage()
 }

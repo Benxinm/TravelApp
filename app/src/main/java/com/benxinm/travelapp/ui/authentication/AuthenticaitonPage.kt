@@ -1,5 +1,6 @@
 package com.benxinm.travelapp.ui.authentication
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -22,6 +23,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.benxinm.travelapp.logic.Repository
 import com.benxinm.travelapp.logic.dao.UserDao
 import com.benxinm.travelapp.ui.theme.blue8
 import com.benxinm.travelapp.ui.theme.white7blue
@@ -87,6 +89,17 @@ fun AuthenticationPage() {
                 onClick = {
                     if (isRegister) {
                         loginViewModel.register(email, nickname, password, rePassword)
+//                        loginViewModel.sendEmail(email) TODO 再加个按钮
+//                        Repository.sendEmail(email).observe(lifecycleOwner){result->
+//                            val a= result.getOrNull()
+//                            if (result.isSuccess){
+//                                val toast = Toast.makeText(context, "发送成功!", Toast.LENGTH_SHORT)
+//                                toast.show()
+//                            }else{
+//                                val toast = Toast.makeText(context, "发送失败!", Toast.LENGTH_SHORT)
+//                                toast.show()
+//                            }
+//                        }
                     } else {
                         loginViewModel.login(email, password)
                     }
@@ -110,10 +123,17 @@ fun AuthenticationPage() {
         }
         loginViewModel.userLiveData.observe(lifecycleOwner) { result ->
             val user = result.getOrNull()
+            if (result.isSuccess){
+                val toast = Toast.makeText(context, "登陆成功!", Toast.LENGTH_SHORT)
+                toast.show()
+            }else{
+                val toast = Toast.makeText(context, "登陆失败!", Toast.LENGTH_SHORT)
+                toast.show()
+            }
             if (user != null) {
                 userViewModel.token=user["token"]!!
                 userViewModel.email = user["user_name"]!!
-                userViewModel.nickname = user["nickname"]!!
+                userViewModel.nickname = user["user_nick"]!!
                 userViewModel.targetEmail = user["user_name"]!!
                 scope.launch {
                     userDao.saveUserEmail(userViewModel.email)
@@ -123,8 +143,8 @@ fun AuthenticationPage() {
         }
         loginViewModel.registerUserLiveData.observe(lifecycleOwner) { result ->
             val isSuccess = result.isSuccess
-            val verified = loginViewModel.verifyEmail(code = code)
-            if (isSuccess && verified != null && verified) {
+//            val verified = loginViewModel.verifyEmail(code = code) TODO 1
+            if (isSuccess/* && verified != null && verified*/) {
                 val toast = Toast.makeText(context, "注册成功!", Toast.LENGTH_SHORT)
                 toast.show()
             } else {

@@ -52,4 +52,5 @@ interface DetailService {
         @Path("page") page:Int,
         @Path("pageSize") pageSize:Int,
     ):Call<CommonResult<List<CommentWithHead>>>
+
 }
