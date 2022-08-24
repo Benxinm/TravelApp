@@ -21,6 +21,9 @@ import com.benxinm.travelapp.ui.main.StorePage
 import com.benxinm.travelapp.ui.me.EditPage
 import com.benxinm.travelapp.ui.me.FlavorSelectPage
 import com.benxinm.travelapp.ui.me.MePage
+import com.benxinm.travelapp.ui.post.PersonalPost
+import com.benxinm.travelapp.viewModel.CommunityViewModel
+import com.benxinm.travelapp.viewModel.DetailViewModel
 import com.benxinm.travelapp.viewModel.UserViewModel
 
 @Composable
@@ -29,6 +32,8 @@ fun TravelApp() {
     val navController = rememberNavController()
     val backStackEntry = navController.currentBackStackEntryAsState()
     val currentPage = Page.fromRoute(backStackEntry.value?.destination?.route)
+    val detailViewModel:DetailViewModel= viewModel()
+    val communityViewModel:CommunityViewModel= viewModel()
     var check by remember {
         mutableStateOf(true)
     }
@@ -57,13 +62,13 @@ fun TravelApp() {
                 LaunchedEffect(key1 = Unit) {
                     check = true
                 }
-                Community(navController)
+                Community(navController,detailViewModel,userViewModel,communityViewModel)
             }
             composable(Page.Detail.name) {
                 LaunchedEffect(key1 = Unit) {
                     check = false
                 }
-                DetailPage(navController)
+                DetailPage(navController,detailViewModel,communityViewModel)
             }
             composable(Page.Personal.name){
                 LaunchedEffect(key1 = Unit) {
@@ -106,6 +111,12 @@ fun TravelApp() {
                     check = false
                 }
                 GuideDetail(navController = navController)
+            }
+            composable(Page.AddPost.name){
+                LaunchedEffect(key1 = Unit) {
+                    check = false
+                }
+                PersonalPost(navController)
             }
         }
     }

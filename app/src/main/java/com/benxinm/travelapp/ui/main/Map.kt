@@ -3,6 +3,7 @@ package com.benxinm.travelapp.ui.main
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -17,11 +18,13 @@ import com.benxinm.travelapp.util.noRippleClickable
 
 @Composable
 fun MapPage(navController: NavController) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center, modifier = Modifier.fillMaxSize()) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center, modifier = Modifier.fillMaxSize().systemBarsPadding()) {
+        Row(modifier = Modifier.fillMaxWidth()) {
+           Icon(painter = painterResource(id = R.drawable.ic_back), contentDescription ="", modifier = Modifier.size(30.dp).noRippleClickable { navController.popBackStack() })
+        }
         Box(modifier = Modifier
             .fillMaxSize()
             .offset(x = 100.dp)) {
-
             Image(painter = painterResource(id = R.drawable.nanping), contentDescription ="" , modifier = Modifier
                 .size(200.dp)
                 .noRippleClickable { })

@@ -18,6 +18,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import coil.compose.AsyncImagePainter
 import coil.compose.SubcomposeAsyncImage
 import coil.compose.SubcomposeAsyncImageContent
@@ -27,14 +28,15 @@ import com.benxinm.travelapp.util.noRippleClickable
 import kotlinx.coroutines.flow.Flow
 
 @Composable
-fun WaterfallLabel(url:String, text:String,
+fun WaterfallLabel(url:String, text:String,id:Int=0,
                    likes:  Int,onSelected:()->Unit={},
                    onClick:(ScaleButtonState)->Unit) {
     Surface(
         shape = RoundedCornerShape(20.dp),
         modifier = Modifier
             .width(width = 215.dp)
-            .padding(5.dp).noRippleClickable { onSelected() }, elevation = 5.dp
+            .padding(5.dp)
+            .noRippleClickable { onSelected() }, elevation = 5.dp
     ){
         Column {
             SubcomposeAsyncImage(model = url, contentScale = ContentScale.Fit, modifier = Modifier.width(200.dp), contentDescription = ""){
@@ -44,6 +46,9 @@ fun WaterfallLabel(url:String, text:String,
                 } else {
                     SubcomposeAsyncImageContent()
                 }
+            }
+            if (id!=0){
+                Image(painter = painterResource(id = id), contentDescription = "",contentScale = ContentScale.Fit, modifier = Modifier.width(200.dp))
             }
             Box(modifier = Modifier.padding(horizontal = 10.dp)) {
                 Column(verticalArrangement = Arrangement.Center) {

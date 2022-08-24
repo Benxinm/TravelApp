@@ -14,7 +14,7 @@ interface UserService {
     fun changeNickname(@Path("email") email: String,@Field("new_nick")newNickname:String):Call<NoDataResultPython>
     @Multipart
     @POST("/{email}/change_head")
-    fun uploadImage(@Path("email") email: String,@Part file:MultipartBody.Part):Call<CommonResultPython<HashMap<String,String>>>
+    fun uploadImage(@Header("Authorization") token:String,@Path("email") email: String,@Part file:MultipartBody.Part):Call<CommonResultPython<HashMap<String,String>>>
     @GET("/{email}/food_collect")
     fun getMyFoodCollect(@Path("email") email: String):Call<CommonResultPython<List<List<String>>>>
     @GET("/{email}/store_collect")

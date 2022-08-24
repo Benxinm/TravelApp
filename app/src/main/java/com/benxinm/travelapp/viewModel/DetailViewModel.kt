@@ -18,9 +18,11 @@ class DetailViewModel : ViewModel() {
     var inputText by mutableStateOf("")
     var detailModel:PostDetailModel?=PostDetailModel("benxinm","123","123",1111L,1,1,"1324561")
     val commentList = mutableStateListOf<CommentWithHead>()
+    var text by mutableStateOf("")
     val urlList= mutableStateListOf<String>()
     private val _addCommentLiveData = MutableLiveData<AddCommentModel>()
     var target by mutableStateOf("")
+    var targetNickname by mutableStateOf("")
     val addCommentLiveData = Transformations.switchMap(_addCommentLiveData) { addCommentModel ->
         Repository.addComment(
             addCommentModel.token,

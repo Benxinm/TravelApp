@@ -10,11 +10,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.benxinm.travelapp.R
+import com.benxinm.travelapp.data.Page
+import com.benxinm.travelapp.util.noRippleClickable
 
 @Composable
-fun Location() {
-    Box(modifier = Modifier.wrapContentSize()) {
+fun Location(navController: NavController) {
+    Box(modifier = Modifier.wrapContentSize().noRippleClickable { navController.navigate(Page.Map.name) }) {
         Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.padding(top = 5.dp)) {
             Icon(painter = painterResource(id = R.drawable.ic_locate), contentDescription ="位置", modifier = Modifier.size(25.dp))
             Spacer(modifier = Modifier.width(3.dp))

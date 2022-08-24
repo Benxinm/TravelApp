@@ -23,31 +23,45 @@ import androidx.navigation.compose.rememberNavController
 import com.benxinm.travelapp.R
 import com.benxinm.travelapp.data.Label
 import com.benxinm.travelapp.data.Page
+import com.benxinm.travelapp.data.responseModel.PostDetailModel
 import com.benxinm.travelapp.logic.Repository
 import com.benxinm.travelapp.ui.components.*
 import com.benxinm.travelapp.ui.theme.BackgroundGrey
+import com.benxinm.travelapp.util.noRippleClickable
 import com.benxinm.travelapp.viewModel.CommunityViewModel
 import com.benxinm.travelapp.viewModel.DetailViewModel
+import com.benxinm.travelapp.viewModel.UserViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
 @Composable
-fun Community(navController: NavController) {
-    val communityViewModel: CommunityViewModel = viewModel()
-    val detailViewModel: DetailViewModel = viewModel()
+fun Community(
+    navController: NavController,
+    detailViewModel: DetailViewModel,
+    userViewModel: UserViewModel,
+    communityViewModel: CommunityViewModel
+) {
+//    val communityViewModel: CommunityViewModel = viewModel()
     val lifecycleOwner = LocalLifecycleOwner.current
     val context = LocalContext.current
     LaunchedEffect(key1 = true) {
         communityViewModel.getAllPost().observe(lifecycleOwner) { result ->
             val list = result.getOrNull()
             if (list != null && result.isSuccess) {
+                communityViewModel.postList.clear()
                 communityViewModel.postList.addAll(list)
             }
         }
     }
+//    val list = listOf(
+//        Label("https://s2.loli.net/2022/08/02/JTYD61w3jlQRWcu.jpg", "福州佛跳墙"),
+//    )
     val list = listOf(
-        Label("https://s2.loli.net/2022/08/02/JTYD61w3jlQRWcu.jpg", "福州佛跳墙"),
+        Label(R.drawable.c_1.toString(), "福州佛跳墙"),
+        Label(R.drawable.c_2.toString(), "好吃餐厅推荐"),
+        Label(R.drawable.c_3.toString(), "超好吃仙草冻"),
+        Label(R.drawable.c_4.toString(), "面包配牛奶")
     )
     Box(modifier = Modifier.fillMaxSize()) {
         Box(modifier = Modifier.systemBarsPadding()) {
@@ -58,13 +72,15 @@ fun Community(navController: NavController) {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_add),
                                 tint = Color.Black,
-                                contentDescription = "添加"
+                                contentDescription = "添加", modifier = Modifier.noRippleClickable {
+                                    navController.navigate(Page.AddPost.name)
+                                }
                             )
                             Spacer(modifier = Modifier.width(20.dp))
                             HomeSearchBar()
                         }
                         Spacer(modifier = Modifier.height(10.dp))
-                        Location()
+                        Location(navController)
                     }
                 }
                 Box(
@@ -78,17 +94,28 @@ fun Community(navController: NavController) {
                                 maxColumnWidth = 215.dp,
                                 modifier = Modifier.padding(horizontal = 15.dp)
                             ) {
-                                /*communityViewModel.postList*/list.forEach { label ->
+                                communityViewModel.postList/*list*/.forEach { label ->
                                     val likes = remember {
                                         mutableStateOf(0)
                                     }
+                                    Log.d("WaterFallUrl", label.picUrl)
                                     WaterfallLabel(
-                                        url = label.imgRes/*picUrl*/,
-                                        text = label.text/*title*/,
+                                        url = label./*imgRes*/picUrl/*, id = label.imgRes.toInt()*/,
+                                        text = label./*text*/title,
                                         likes = likes.value, onSelected = {
-                                            /*detailViewModel.target=label.id
-                                            communityViewModel.getUrls(label.id)
-                                            communityViewModel.getPostDetail(label.id)*/
+                                            detailViewModel.target = label.id
+                                            detailViewModel.targetNickname = label.nickname
+                                            communityViewModel.getUrls(
+                                                userViewModel.tokenTest,
+                                                label.id
+                                            )
+                                            communityViewModel.getPostDetail(
+                                                userViewModel.tokenTest,
+                                                label.id
+                                            )
+                                            detailViewModel.urlList.clear()
+                                            detailViewModel.urlList.add(label./*imgRes*/picUrl)
+//                                        detailViewModel.detailModel= PostDetailModel("User#${list.indexOf(label)}","1",label.text,1L,1,1,label.text)
                                             navController.navigate(Page.Detail.name)
                                         }
                                     ) { scaleButtonState ->
@@ -117,18 +144,18 @@ fun Community(navController: NavController) {
                 }
             }
         }
-        communityViewModel.getPostDetailLivedata.observe(lifecycleOwner){
-            val result=it.getOrNull()
-            if (result!=null){
-                detailViewModel.detailModel=result[0]
-            }
-        }
-        communityViewModel.getUrlsLiveData.observe(lifecycleOwner){
-            val result=it.getOrNull()
-            if (result!=null){
-                detailViewModel.urlList.clear()
-                detailViewModel.urlList.addAll(result)
-            }
-        }
+//        communityViewModel.getPostDetailLivedata.observe(lifecycleOwner) {
+//            val result = it.getOrNull()
+//            if (result != null) {
+//                detailViewModel.detailModel = result[0]
+//            }
+//        }
+//        communityViewModel.getUrlsLiveData.observe(lifecycleOwner) {
+//            val result = it.getOrNull()
+//            if (result != null) {
+//                detailViewModel.urlList.clear()
+//                detailViewModel.urlList.addAll(result)
+//            }
+//        }
     }
 }

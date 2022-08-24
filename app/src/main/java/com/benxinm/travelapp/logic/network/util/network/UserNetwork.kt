@@ -16,7 +16,7 @@ object UserNetwork {
     private val userService = PythonServiceCreator.create(UserService::class.java)
     suspend fun getFanSubNum(email:String)= userService.getFanSubNum(email).await()
     suspend fun changeNickname(email: String,newNickname:String)= userService.changeNickname(email, newNickname).await()//TODO 后续的还没写
-    suspend fun uploadImage(email: String,file: MultipartBody.Part)= userService.uploadImage(email, file).await()
+    suspend fun uploadImage(token:String,email: String,file: MultipartBody.Part)= userService.uploadImage(token,email, file).await()
     suspend fun getFoodCollect(email: String)= userService.getMyFoodCollect(email).await()
     suspend fun getStoreCollect(email: String)= userService.getMyStoreCollect(email).await()
     private suspend fun <T> Call<T>.await(): T {

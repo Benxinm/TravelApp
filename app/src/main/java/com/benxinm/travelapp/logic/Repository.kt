@@ -98,15 +98,21 @@ object Repository {
         }
         emit(result)
     }
-    fun uploadImage(email: String,file:MultipartBody.Part)= liveData(Dispatchers.IO) {
+    fun uploadImage(token: String,email: String,file:MultipartBody.Part)= liveData(Dispatchers.IO) {
         val result=try {
-            val response=UserNetwork.uploadImage(email, file)
+            Log.d("ImageUpload","被调用")
+            val response=UserNetwork.uploadImage(token,email,file)
+            Log.d("ImageUpload","成功一半")
             if (response.code==200){
+                Log.d("ImageUpload","成功")
                 Result.success(response.data)
             }else{
                 Result.failure(RuntimeException("response status is${response.message}"))
             }
         }catch (e: Exception) {
+            Log.d("ImageUpload",e.message?:"")
+            Log.d("ImageUpload",e.toString())
+
             Result.failure(e)
         }
         emit(result)
@@ -168,17 +174,14 @@ object Repository {
     fun addComment(token:String,username: String, type: Int, word: String, target: String, level: Int) =
         liveData(Dispatchers.IO) {
             val result = try {
-                Log.d("motherfucker","fuck1")
                 val response = DetailNetwork.addComment(token,username, type, word, target, level)
-                Log.d("motherfucker",response.code.toString())
                 if (response.code == 1) {
-                    Log.d("received","${response.msg}")
                     Result.success(true)
                 } else {
                     Result.failure(RuntimeException("response status is${response.msg}"))
                 }
             } catch (e: Exception) {
-                Log.d("motherfucker","fuck")
+
                 Result.failure(e)
             }
             emit(result)
@@ -210,9 +213,9 @@ object Repository {
                 response.data.forEach { list ->
                     resultList.add(
                         PostModel(
-                            list[0], list[1],
-                            list[2].toLong(), list[3].toInt(),
-                            list[4].toInt(), list[5]
+                            list[0], list[1],list[2],
+                            list[3].toLong(), list[4].toInt(),
+                            list[5].toInt(), list[6]
                         )
                     )
                 }
@@ -226,30 +229,36 @@ object Repository {
         emit(result)
     }
 
-    fun getUrls(id: String) = liveData(Dispatchers.IO) {
+    fun getUrls(token: String,id: String) = liveData(Dispatchers.IO) {
         val result = try {
-            val response = CommunityNetwork.getUrl(id)
+            Log.d("urlSize","被调用")
+            val response = CommunityNetwork.getUrl(token,id)
             if (response.code == 200) {
+                Log.d("urlSize",response.data.size.toString())
                 val resultList = mutableListOf<String>()
                 response.data.forEach { url ->
-                    resultList.add(url[0])
+                    resultList.addAll(url)
                 }
                 Result.success(resultList.toList())
             } else {
                 Result.failure(RuntimeException("response status is${response.message}"))
             }
         } catch (e: Exception) {
+            Log.d("urlSize","cuo wu")
             Result.failure(e)
         }
         emit(result)
     }
 
-    fun getPostDetail(id: String) = liveData(Dispatchers.IO) {
+    fun getPostDetail(token: String,id: String) = liveData(Dispatchers.IO) {
         val result = try {
-            val response = CommunityNetwork.getPostDetail(id)
+            Log.d("get detail","被调用")
+            val response = CommunityNetwork.getPostDetail(token,id)
+            Log.d("get detail",id)
             if (response.code == 200) {
                 val resultList = mutableListOf<PostDetailModel>()
                 response.data.forEach { detail ->
+                    Log.d("get detail nickname",detail[0])
                     resultList.add(
                         PostDetailModel(
                             detail[0], detail[1], detail[2],
@@ -263,22 +272,23 @@ object Repository {
                 Result.failure(RuntimeException("response status is${response.message}"))
             }
         } catch (e: Exception) {
+            Log.d("get detail","cuo wu")
             Result.failure(e)
         }
         emit(result)
     }
 
-    fun getSubPost(email: String) = liveData(Dispatchers.IO) {
+    fun getSubPost(token: String,email: String) = liveData(Dispatchers.IO) {
         val result = try {
-            val response = CommunityNetwork.getSubPost(email)
+            val response = CommunityNetwork.getSubPost(token,email)
             if (response.code == 200) {
                 val resultList = mutableListOf<PostModel>()
                 response.data.forEach { list ->
                     resultList.add(
                         PostModel(
-                            list[0], list[1],
-                            list[2].toLong(), list[3].toInt(),
-                            list[4].toInt(), list[5]
+                            list[0], list[1],list[2],
+                            list[3].toLong(), list[4].toInt(),
+                            list[5].toInt(), list[6]
                         )
                     )
                 }

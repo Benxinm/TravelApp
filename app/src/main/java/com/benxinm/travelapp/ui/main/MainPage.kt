@@ -45,7 +45,7 @@ fun MainPage(navController: NavController) {
             val state = rememberPagerState()
             Column {
                 Row(horizontalArrangement = Arrangement.Center) {
-                    Location()
+                    Location(navController)
                     Spacer(modifier = Modifier.width(6.dp))
                     HomeSearchBar()
                 }

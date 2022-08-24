@@ -3,6 +3,7 @@ package com.benxinm.travelapp.ui.detail
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -22,6 +23,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role.Companion.Image
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
@@ -39,6 +41,7 @@ import com.benxinm.travelapp.ui.authentication.MyInputBox
 import com.benxinm.travelapp.ui.components.*
 import com.benxinm.travelapp.ui.main.DotsIndicator
 import com.benxinm.travelapp.util.noRippleClickable
+import com.benxinm.travelapp.viewModel.CommunityViewModel
 import com.benxinm.travelapp.viewModel.DetailViewModel
 import com.benxinm.travelapp.viewModel.UserViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -49,8 +52,7 @@ import java.text.SimpleDateFormat
 
 const val topBarHeight = 40
 @Composable
-fun DetailPage(navController: NavController) {
-    val detailViewModel: DetailViewModel = viewModel()
+fun DetailPage(navController: NavController,detailViewModel: DetailViewModel,communityViewModel:CommunityViewModel) {
     val userViewModel: UserViewModel = viewModel()
     val lifecycleOwner = LocalLifecycleOwner.current
     val context = LocalContext.current
@@ -61,10 +63,23 @@ fun DetailPage(navController: NavController) {
     LaunchedEffect(key1 = userViewModel.targetEmailForDetail) {
         detailViewModel.getComments(3, userViewModel.targetEmailForDetail, 1, page)
     }
+    communityViewModel.getPostDetailLivedata.observe(lifecycleOwner) {
+        val result = it.getOrNull()
+        if (result != null) {
+            detailViewModel.detailModel = result[0]
+        }
+    }
+    communityViewModel.getUrlsLiveData.observe(lifecycleOwner) {
+        val result = it.getOrNull()
+        if (result != null) {
+            detailViewModel.urlList.clear()
+            detailViewModel.urlList.addAll(result)
+        }
+    }
     Box(modifier = Modifier
         .fillMaxSize()
     ) {
-        DetailPageTopBar(navController)
+        DetailPageTopBar(navController,detailViewModel)
         Box(
             modifier = Modifier
                 .systemBarsPadding()
@@ -103,7 +118,7 @@ fun DetailPage(navController: NavController) {
 }
 
 @Composable
-fun DetailPageTopBar(navController: NavController) {
+fun DetailPageTopBar(navController: NavController,detailViewModel: DetailViewModel) {
     Box(modifier = Modifier.background(Color.White)) {
         Box(modifier = Modifier.systemBarsPadding()) {
             Row(
@@ -117,10 +132,11 @@ fun DetailPageTopBar(navController: NavController) {
                     modifier = Modifier
                         .size(25.dp)
                         .clip(CircleShape)
-                        .noRippleClickable {navController.popBackStack()}
+                        .noRippleClickable { navController.popBackStack() }
                 )
                 CircleImage(res = R.drawable.dla01, size = 30.dp)
-                Text(text = "Benxinm", modifier = Modifier.padding(start = 10.dp))
+                Log.d("detail",detailViewModel.detailModel!!.nickname)
+                Text(text = detailViewModel.detailModel!!.nickname, modifier = Modifier.padding(start = 10.dp))
             }
             var subscribed by remember {
                 mutableStateOf(false)
@@ -160,14 +176,13 @@ fun DetailPageTopBar(navController: NavController) {
 @Composable
 fun PictureContainer(detailViewModel: DetailViewModel) {
     // 图片参数
-//    Image(
-//        painter = painterResource(id = R.drawable.dla01),
+//    Image(painter = painterResource(id = detailViewModel.urlList[0].toInt()),
 //        contentDescription = "图片",
 //        modifier = Modifier.fillMaxWidth(),
-//        contentScale = ContentScale.Crop
-//    )
+//        contentScale = ContentScale.Crop)
     val state = rememberPagerState()
     Column {
+        Log.d("urlSizeInPage",detailViewModel.urlList.size.toString())
         HorizontalPager(count = detailViewModel.urlList.size,state=state) {page->
             SubcomposeAsyncImage(model =detailViewModel.urlList[page], modifier = Modifier.fillMaxWidth().height(300.dp) ,contentScale = ContentScale.Fit , contentDescription ="") {
                 val state=painter.state

@@ -135,6 +135,7 @@ fun AuthenticationPage() {
                 userViewModel.email = user["user_name"]!!
                 userViewModel.nickname = user["user_nick"]!!
                 userViewModel.targetEmail = user["user_name"]!!
+                userViewModel.userProfile=user["url"]!!
                 scope.launch {
                     userDao.saveUserEmail(userViewModel.email)
                     userDao.saveUserPassword(password)

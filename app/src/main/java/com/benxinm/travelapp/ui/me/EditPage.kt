@@ -1,6 +1,7 @@
 package com.benxinm.travelapp.ui.me
 
 import android.net.Uri
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -28,6 +29,7 @@ import coil.compose.SubcomposeAsyncImageContent
 import com.benxinm.travelapp.R
 import com.benxinm.travelapp.logic.Repository
 import com.benxinm.travelapp.logic.dao.UserDao
+import com.benxinm.travelapp.util.FileUtil
 import com.benxinm.travelapp.util.noRippleClickable
 import com.benxinm.travelapp.viewModel.UserViewModel
 import com.google.accompanist.insets.ui.Scaffold
@@ -43,6 +45,7 @@ const val defaultUri = "https://s2.loli.net/2022/08/03/2W9Nmf1SBpoRFdi.jpg"
 
 @Composable
 fun EditPage(navController: NavController) {
+
     val context = LocalContext.current
     val lifecycleOwner= LocalLifecycleOwner.current
     val userDao = UserDao(context)
@@ -51,12 +54,16 @@ fun EditPage(navController: NavController) {
     var selectImages by remember {
         mutableStateOf(listOf<Uri>())
     }
+
     val userViewModel:UserViewModel= viewModel()
     val galleryLauncher= rememberLauncherForActivityResult(contract = ActivityResultContracts.GetMultipleContents()){ urls ->
-        val file = File(urls[0].path)
+        val file = File(FileUtil.getFileAbsolutePath(context,urls[0])?:"")
+//        Util.uri2Bitmap(urls[0])
+//        Log.d("ImageUpload", )
         val imageBody = file.asRequestBody("/multipart/form-data".toMediaTypeOrNull())
-        val imageBodyPart= MultipartBody.Part.createFormData("image",file.name,imageBody)
-        Repository.uploadImage(userViewModel.email,imageBodyPart).observe(lifecycleOwner){
+        val imageBodyPart= MultipartBody.Part.create(imageBody)
+        //TODO TEST REMEMBER TO CHANGE
+        Repository.uploadImage(userViewModel.tokenTest,userViewModel.emailTest,imageBodyPart).observe(lifecycleOwner){
             val result=it.getOrNull()
             if (result!=null && it.isSuccess){
                 scope.launch {
