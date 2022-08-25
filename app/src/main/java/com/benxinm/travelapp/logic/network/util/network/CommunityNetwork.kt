@@ -2,6 +2,7 @@ package com.benxinm.travelapp.logic.network.util.network
 
 import com.benxinm.travelapp.logic.network.service.CommunityService
 import com.benxinm.travelapp.logic.network.util.PythonServiceCreator
+import okhttp3.MultipartBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -15,6 +16,8 @@ object CommunityNetwork {
     suspend fun getAllPost()= communityService.getAllPost().await()
     suspend fun getPostDetail(token: String,id: String)= communityService.getPostDetail(token,id).await()
     suspend fun getSubPost(token: String,email:String)= communityService.getSubPost(token,email).await()
+    suspend fun addPost(token: String,email: String,title: MultipartBody.Part,text: MultipartBody.Part,fileList:List<MultipartBody.Part>)=
+        communityService.addPost(token, email, title, text, fileList).await()
     private suspend fun <T> Call<T>.await(): T {
         return suspendCoroutine { continuation ->
             enqueue(object : Callback<T> {

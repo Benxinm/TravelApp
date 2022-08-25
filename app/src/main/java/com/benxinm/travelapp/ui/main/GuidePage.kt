@@ -23,14 +23,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.benxinm.travelapp.R
+import com.benxinm.travelapp.data.Collect
 import com.benxinm.travelapp.data.Page
 import com.benxinm.travelapp.data.responseModel.TwoParamShowModel
 import com.benxinm.travelapp.ui.components.AnimatedScaleButton
 import com.benxinm.travelapp.ui.components.ScaleButtonState
 import com.benxinm.travelapp.util.noRippleClickable
+import com.benxinm.travelapp.viewModel.UserViewModel
 
 @Composable
-fun GuidePage(navController: NavController) {
+fun GuidePage(navController: NavController,userViewModel: UserViewModel) {
     val list = listOf<TwoParamShowModel>(TwoParamShowModel("达闽美食街夜游", R.drawable.m_1.toString()))
     Box(modifier = Modifier.systemBarsPadding()) {
         Box(modifier = Modifier.padding(horizontal = 10.dp)) {
@@ -91,7 +93,7 @@ fun GuidePage(navController: NavController) {
                 Spacer(modifier = Modifier.height(20.dp))
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
                     items(list) {
-                        GuideLabel(model = it,navController)
+                        GuideLabel(model = it,navController,userViewModel)
                     }
                 }
             }
@@ -100,7 +102,7 @@ fun GuidePage(navController: NavController) {
 }
 
 @Composable
-fun GuideLabel(model: TwoParamShowModel,navController: NavController) {
+fun GuideLabel(model: TwoParamShowModel,navController: NavController,userViewModel: UserViewModel) {
     Surface(shape = RoundedCornerShape(30.dp), elevation = 3.dp, modifier = Modifier.noRippleClickable {
         navController.navigate(Page.GuideDetail.name)
     }) {
@@ -120,7 +122,7 @@ fun GuideLabel(model: TwoParamShowModel,navController: NavController) {
                     mutableStateOf(ScaleButtonState.IDLE)
                 }
                 var collectState by remember {
-                    mutableStateOf(ScaleButtonState.IDLE)
+                    mutableStateOf(if (userViewModel.collectList.contains(Collect(model.url.toInt(),model.name,Page.StoreDetail.name))) ScaleButtonState.ACTIVE else ScaleButtonState.IDLE)
                 }
                 AnimatedScaleButton(
                     state = likeState,
@@ -138,7 +140,13 @@ fun GuideLabel(model: TwoParamShowModel,navController: NavController) {
                     state = collectState,
                     onToggle = {
                         collectState =
-                            if (collectState == ScaleButtonState.IDLE) ScaleButtonState.ACTIVE else ScaleButtonState.IDLE
+                            if (collectState == ScaleButtonState.IDLE) {
+                                userViewModel.collectList.add(Collect(model.url.toInt(),model.name,Page.StoreDetail.name))
+                                ScaleButtonState.ACTIVE
+                            }else{
+                                userViewModel.collectList.remove(Collect(model.url.toInt(),model.name,Page.StoreDetail.name))
+                                ScaleButtonState.IDLE
+                            }
                     },
                     size = 20.dp,
                     activeColor = Color.Yellow,

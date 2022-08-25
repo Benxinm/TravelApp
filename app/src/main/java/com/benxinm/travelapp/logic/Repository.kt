@@ -17,7 +17,9 @@ object Repository {
      */
     fun login(username: String, password: String) = liveData(Dispatchers.IO) {
         val result = try {
+            Log.d("Login R","1")
             val loginResponse = LoginNetwork.login(username, password)
+            Log.d("Login R","2")
             if (loginResponse.code == 200) {
                 val user = loginResponse.data
                 Result.success(user)
@@ -25,6 +27,8 @@ object Repository {
                 Result.failure(RuntimeException("response status is${loginResponse.message}"))
             }
         } catch (e: Exception) {
+            Log.d("Login R","3")
+
             Result.failure(e)
         }
         emit(result)
@@ -33,7 +37,7 @@ object Repository {
     fun register(username: String, nickname: String, password: String, rePassword: String) =
         liveData(Dispatchers.IO) {
             val result = try {
-                Log.d("Login R","1")
+
                 val registerResponse =
                     LoginNetwork.register(username, nickname, password, rePassword)
                 if (registerResponse.code == 200) {
@@ -43,7 +47,7 @@ object Repository {
                     Result.failure(RuntimeException("response status is${registerResponse.message}"))
                 }
             } catch (e: Exception) {
-                Log.d("Login R","2")
+
                 Result.failure(e)
             }
             emit(result)
@@ -105,6 +109,7 @@ object Repository {
             Log.d("ImageUpload","成功一半")
             if (response.code==200){
                 Log.d("ImageUpload","成功")
+                Log.d("ImageUpload",response.data["url"]?:"1")
                 Result.success(response.data)
             }else{
                 Result.failure(RuntimeException("response status is${response.message}"))
@@ -112,7 +117,6 @@ object Repository {
         }catch (e: Exception) {
             Log.d("ImageUpload",e.message?:"")
             Log.d("ImageUpload",e.toString())
-
             Result.failure(e)
         }
         emit(result)
@@ -135,6 +139,114 @@ object Repository {
                 Result.failure(RuntimeException("response status is${response.message}"))
             }
         }catch (e: Exception) {
+            Result.failure(e)
+        }
+        emit(result)
+    }
+    fun follow(token: String,email: String,target: String)= liveData(Dispatchers.IO){
+        val result=try {
+            Log.d("follow R","1")
+            val response= UserNetwork.follow(token, email, target)
+            Log.d("follow R","2")
+            if (response.code==200){
+                Result.success(response.data)
+            }else{
+                Result.failure(RuntimeException("response status is${response.message}"))
+            }
+        } catch (e:Exception){
+            Log.d("follow R",e.toString())
+            Result.failure(e)
+        }
+        emit(result)
+    }
+    fun changeNickname(token: String,email: String,newNickname:String)= liveData(Dispatchers.IO){
+        val result=try {
+            Log.d("follow R","1")
+            val response= UserNetwork.changeNickname(token, email, newNickname)
+            Log.d("follow R","2")
+            if (response.code==200){
+                Result.success(response.data)
+            }else{
+                Result.failure(RuntimeException("response status is${response.message}"))
+            }
+        } catch (e:Exception){
+            Log.d("follow R",e.toString())
+            Result.failure(e)
+        }
+        emit(result)
+    }
+    fun changePassword(token: String,email: String,password1: String,password2: String)= liveData(Dispatchers.IO){
+        val result=try {
+            Log.d("follow R","1")
+            val response= UserNetwork.changePassword(token, email, password1, password2)
+            Log.d("follow R","2")
+            if (response.code==200){
+                Result.success(response.data)
+            }else{
+                Result.failure(RuntimeException("response status is${response.message}"))
+            }
+        } catch (e:Exception){
+            Log.d("follow R",e.toString())
+            Result.failure(e)
+        }
+        emit(result)
+    }
+    fun setBottle(token: String,email: String,type: String,degree:String)= liveData(Dispatchers.IO){
+        val result=try {
+            Log.d("setBottle","1")
+            val response= UserNetwork.setBottles(token, email, type, degree)
+            Log.d("setBottle","2")
+            if (response.code==200){
+                Log.d("setBottle","3")
+                Result.success(response.message)
+            }else{
+                Result.failure(RuntimeException("response status is${response.message}"))
+            }
+        }catch (e:Exception){
+            Log.d("setBottle",e.toString())
+            Result.failure(e)
+        }
+        emit(result)
+    }
+    fun checkBottle(token: String,email: String)= liveData(Dispatchers.IO){
+        val result=try {
+            Log.d("checkBottle","1")
+            val response= UserNetwork.checkBottle(token, email)
+            Log.d("checkBottle","2")
+            if (response.code==200){
+                Log.d("checkBottle","3")
+                Result.success(response.data)
+            }else{
+                Result.failure(RuntimeException("response status is${response.message}"))
+            }
+        }catch (e:Exception){
+            Log.d("checkBottle",e.toString())
+            Result.failure(e)
+        }
+        emit(result)
+    }
+    fun getMyPost(token: String,email: String)= liveData(Dispatchers.IO){
+        val result=try {
+            Log.d("getMyPost","1")
+            val response= UserNetwork.getMyPost(token, email)
+            Log.d("getMyPost","2")
+            if (response.code==200){
+                Log.d("getMyPost","3")
+                val resultList = mutableListOf<PostModel>()
+                response.data.forEach { list ->
+                    Log.d("getMyPost",list[2])
+                    resultList.add(
+                        PostModel(
+                            "",list[1],list[2],list[3].toLong(),list[4].toInt(),list[5].toInt(),list[0]
+                        )
+                    )
+                }
+                Result.success(resultList.toList())
+            }else{
+                Result.failure(RuntimeException("response status is${response.message}"))
+            }
+        }catch (e:Exception){
+            Log.d("getMyPost",e.toString())
             Result.failure(e)
         }
         emit(result)
@@ -211,6 +323,7 @@ object Repository {
             if (response.code == 200) {
                 val resultList = mutableListOf<PostModel>()
                 response.data.forEach { list ->
+                    Log.d("PostUrl",list[3])
                     resultList.add(
                         PostModel(
                             list[0], list[1],list[2],
@@ -301,6 +414,23 @@ object Repository {
         }
         emit(result)
     }
+    fun addPost(token: String,email: String,title: MultipartBody.Part,text: MultipartBody.Part,fileList: List<MultipartBody.Part>)= liveData(Dispatchers.IO){
+            val result=try {
+                Log.d("addPost","被调用")
+                val response= CommunityNetwork.addPost(token, email, title, text, fileList)
+                Log.d("addPost","成功一半")
+                if (response.code==200){
+                    Log.d("addPost","成功")
+                    Result.success(response.message)
+                }else{
+                    Result.failure(RuntimeException("response status is${response.message}"))
+                }
+            }catch (e:Exception){
+                Log.d("addPost",e.toString())
+                Result.failure(e)
+            }
+            emit(result)
+        }
     /**
      * Collect
      */

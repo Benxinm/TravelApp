@@ -23,6 +23,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import com.benxinm.travelapp.data.Page
 import com.benxinm.travelapp.logic.Repository
 import com.benxinm.travelapp.logic.dao.UserDao
 import com.benxinm.travelapp.ui.theme.blue8
@@ -34,9 +36,11 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun AuthenticationPage() {
-    val loginViewModel: LoginViewModel = viewModel()
-    val userViewModel: UserViewModel = viewModel()
+fun AuthenticationPage(
+    navController: NavController,
+    loginViewModel: LoginViewModel,
+    userViewModel: UserViewModel
+) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val userDao = UserDao(context)
@@ -85,21 +89,51 @@ fun AuthenticationPage() {
                 )
             }
             Spacer(modifier = Modifier.height(20.dp))
+            AnimatedContent(targetState = isRegister) { isRegister ->
+                if (isRegister) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(0.8f),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        MyInputBox(
+                            value = code,
+                            onValueChange = { code = it },
+                            tint = "验证码",
+                            width = 0.5f
+                        )
+                        Button(
+                            onClick = {
+                                if (email.isNotEmpty()) {
+                                    Repository.sendEmail(email).observe(lifecycleOwner) { result ->
+                                        if (result.isSuccess) {
+                                            val toast =
+                                                Toast.makeText(context, "发送成功!", Toast.LENGTH_SHORT)
+                                            toast.show()
+                                        } else {
+                                            val toast =
+                                                Toast.makeText(context, "发送失败!", Toast.LENGTH_SHORT)
+                                            toast.show()
+                                        }
+                                    }
+                                }
+                            }, shape = RoundedCornerShape(50), colors = ButtonDefaults.buttonColors(
+                                backgroundColor = blue8.convert(
+                                    ColorSpaces.Srgb
+                                ), contentColor = white7blue.convert(ColorSpaces.Srgb)
+                            ), modifier = Modifier
+                                .height(55.dp)
+                                .fillMaxWidth(0.85f)
+                        ) {
+                            Text(text = "发送验证码")
+                        }
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(20.dp))
             Button(
                 onClick = {
                     if (isRegister) {
                         loginViewModel.register(email, nickname, password, rePassword)
-//                        loginViewModel.sendEmail(email) TODO 再加个按钮
-//                        Repository.sendEmail(email).observe(lifecycleOwner){result->
-//                            val a= result.getOrNull()
-//                            if (result.isSuccess){
-//                                val toast = Toast.makeText(context, "发送成功!", Toast.LENGTH_SHORT)
-//                                toast.show()
-//                            }else{
-//                                val toast = Toast.makeText(context, "发送失败!", Toast.LENGTH_SHORT)
-//                                toast.show()
-//                            }
-//                        }
                     } else {
                         loginViewModel.login(email, password)
                     }
@@ -123,35 +157,44 @@ fun AuthenticationPage() {
         }
         loginViewModel.userLiveData.observe(lifecycleOwner) { result ->
             val user = result.getOrNull()
-            if (result.isSuccess){
+            if (result.isSuccess) {
                 val toast = Toast.makeText(context, "登陆成功!", Toast.LENGTH_SHORT)
+                if (user != null) {
+                    userViewModel.token = user["token"]!!
+                    userViewModel.email = user["user_name"]!!
+                    Log.d("Login", user["user_name"]!!)
+                    userViewModel.nickname = user["user_nick"]!!
+                    userViewModel.targetEmail = user["user_name"]!!
+                    userViewModel.userProfile = user["head"]!!
+                    scope.launch {
+                        userDao.saveUserEmail(userViewModel.email)
+                        userDao.saveUserPassword(password)
+                    }
+                }
+                navController.navigate(Page.MainPage.name)
                 toast.show()
-            }else{
+
+            } else {
                 val toast = Toast.makeText(context, "登陆失败!", Toast.LENGTH_SHORT)
                 toast.show()
             }
-            if (user != null) {
-                userViewModel.token=user["token"]!!
-                userViewModel.email = user["user_name"]!!
-                userViewModel.nickname = user["user_nick"]!!
-                userViewModel.targetEmail = user["user_name"]!!
-                userViewModel.userProfile=user["url"]!!
-                scope.launch {
-                    userDao.saveUserEmail(userViewModel.email)
-                    userDao.saveUserPassword(password)
-                }
-            }
+
         }
         loginViewModel.registerUserLiveData.observe(lifecycleOwner) { result ->
-            val isSuccess = result.isSuccess
-//            val verified = loginViewModel.verifyEmail(code = code) TODO 1
-            if (isSuccess/* && verified != null && verified*/) {
-                val toast = Toast.makeText(context, "注册成功!", Toast.LENGTH_SHORT)
-                toast.show()
-            } else {
-                val toast=Toast.makeText(context,"注册失败~请重试~",Toast.LENGTH_SHORT)
-                toast.show()
+
+            Repository.verifyCode(code).observe(lifecycleOwner) { verified ->
+
+                val isSuccess = result.isSuccess
+                if (isSuccess /*&& verified != null && verified.isSuccess*/) {
+                    val toast = Toast.makeText(context, "注册成功!请进行登录~", Toast.LENGTH_SHORT)
+                    toast.show()
+                    isRegister = false
+                } else {
+                    val toast = Toast.makeText(context, "注册失败~请重试~", Toast.LENGTH_SHORT)
+                    toast.show()
+                }
             }
+
         }
     }
 }
@@ -183,7 +226,7 @@ fun MyInputBox(
                             end = 7.dp
                         ), contentAlignment = Alignment.CenterStart
                 ) {
-                    if (value.isEmpty()) {
+                    if (value.isEmpty() && tint.isNotEmpty()) {
                         Text(text = tint, color = Color.DarkGray)
                     }
                     innerTextField()

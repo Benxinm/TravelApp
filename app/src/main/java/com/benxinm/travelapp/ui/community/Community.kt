@@ -106,11 +106,11 @@ fun Community(
                                             detailViewModel.target = label.id
                                             detailViewModel.targetNickname = label.nickname
                                             communityViewModel.getUrls(
-                                                userViewModel.tokenTest,
+                                                userViewModel.token,
                                                 label.id
                                             )
                                             communityViewModel.getPostDetail(
-                                                userViewModel.tokenTest,
+                                                userViewModel.token,
                                                 label.id
                                             )
                                             detailViewModel.urlList.clear()

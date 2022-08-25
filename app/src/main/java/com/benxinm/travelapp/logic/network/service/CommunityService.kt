@@ -1,10 +1,10 @@
 package com.benxinm.travelapp.logic.network.service
 
 import com.benxinm.travelapp.logic.network.CommonResultPython
+import com.benxinm.travelapp.logic.network.NoDataResultPython
+import okhttp3.MultipartBody
 import retrofit2.Call
-import retrofit2.http.GET
-import retrofit2.http.Header
-import retrofit2.http.Path
+import retrofit2.http.*
 
 interface CommunityService {
     @GET("/community/all_post")
@@ -15,4 +15,7 @@ interface CommunityService {
     fun getUrls(@Header("Authorization") token:String,@Path("uid") id:String): Call<CommonResultPython<List<List<String>>>>
     @GET("/{email}/community/follow_post")
     fun getSubPost(@Header("Authorization") token:String,@Path("email")email:String): Call<CommonResultPython<List<List<String>>>>
+    @Multipart
+    @POST("/{email}/up_post")
+    fun addPost(@Header("Authorization") token:String, @Path("email") email: String, @Part title: MultipartBody.Part, @Part text: MultipartBody.Part, @Part fileList:List<MultipartBody.Part>):Call<NoDataResultPython>
 }

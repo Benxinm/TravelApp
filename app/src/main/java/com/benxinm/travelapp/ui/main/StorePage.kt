@@ -23,13 +23,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.benxinm.travelapp.R
+import com.benxinm.travelapp.data.Collect
+import com.benxinm.travelapp.data.Page
 import com.benxinm.travelapp.data.responseModel.TwoParamShowModel
 import com.benxinm.travelapp.ui.components.AnimatedScaleButton
 import com.benxinm.travelapp.ui.components.ScaleButtonState
 import com.benxinm.travelapp.util.noRippleClickable
+import com.benxinm.travelapp.viewModel.UserViewModel
 
 @Composable
-fun StorePage(navController: NavController) {
+fun StorePage(navController: NavController,userViewModel: UserViewModel) {
     val list = listOf(TwoParamShowModel("达闽美食街夜游", R.drawable.m_1.toString()))
     Box(modifier = Modifier.systemBarsPadding()) {
         Box(modifier = Modifier.padding(horizontal = 10.dp)) {
@@ -90,7 +93,7 @@ fun StorePage(navController: NavController) {
                 Spacer(modifier = Modifier.height(20.dp))
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
                     item {
-                        StoreLabel(url = R.drawable.m_3.toString(), name ="聚春园" , text ="汤汁醇厚，海味山珍" )
+                        StoreLabel(url = R.drawable.m_3.toString(), name ="聚春园" , text ="汤汁醇厚，海味山珍",navController ,userViewModel)
                     }
                 }
             }
@@ -99,12 +102,15 @@ fun StorePage(navController: NavController) {
 }
 
 @Composable
-fun StoreLabel(url: String, name: String, text: String) {
+fun StoreLabel(url: String, name: String, text: String,navController: NavController,userViewModel: UserViewModel) {
     Surface(shape = RoundedCornerShape(8.dp), elevation = 3.dp, modifier = Modifier.height(120.dp)) {
         Box(modifier = Modifier.padding(12.dp)) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.noRippleClickable {
+                    navController.navigate(Page.StoreDetail.name)
+                }
             ) {
                 Image(
                     painter = painterResource(id = url.toInt()), modifier = Modifier
@@ -123,7 +129,7 @@ fun StoreLabel(url: String, name: String, text: String) {
                                 mutableStateOf(ScaleButtonState.IDLE)
                             }
                             var collectState by remember {
-                                mutableStateOf(ScaleButtonState.IDLE)
+                                mutableStateOf(if (userViewModel.collectList.contains(Collect(R.drawable.m_3,name,Page.StoreDetail.name))) ScaleButtonState.ACTIVE else ScaleButtonState.IDLE)
                             }
                             AnimatedScaleButton(
                                 state = likeState,
@@ -141,7 +147,13 @@ fun StoreLabel(url: String, name: String, text: String) {
                                 state = collectState,
                                 onToggle = {
                                     collectState =
-                                        if (collectState == ScaleButtonState.IDLE) ScaleButtonState.ACTIVE else ScaleButtonState.IDLE
+                                        if (collectState == ScaleButtonState.IDLE) {
+                                            userViewModel.collectList.add(Collect(R.drawable.m_3,name,Page.StoreDetail.name))
+                                            ScaleButtonState.ACTIVE
+                                        }else{
+                                            userViewModel.collectList.remove(Collect(R.drawable.m_3,name,Page.StoreDetail.name))
+                                            ScaleButtonState.IDLE
+                                        }
                                 },
                                 size = 20.dp,
                                 activeColor = Color.Yellow,

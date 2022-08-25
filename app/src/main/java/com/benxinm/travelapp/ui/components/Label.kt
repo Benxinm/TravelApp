@@ -23,8 +23,10 @@ import coil.compose.AsyncImagePainter
 import coil.compose.SubcomposeAsyncImage
 import coil.compose.SubcomposeAsyncImageContent
 import com.benxinm.travelapp.R
+import com.benxinm.travelapp.data.Collect
 import com.benxinm.travelapp.data.Sort
 import com.benxinm.travelapp.util.noRippleClickable
+import com.benxinm.travelapp.viewModel.UserViewModel
 import kotlinx.coroutines.flow.Flow
 
 @Composable
@@ -100,10 +102,10 @@ fun WaterfallLabel(url:String, text:String,id:Int=0,
 
 
 @Composable
-fun MainPageLabel(sort: Sort, name: String,onClick:(ScaleButtonState) -> Unit) {
+fun MainPageLabel(sort: Sort, id: Int,name: String,onSelected:()->Unit={},userViewModel: UserViewModel,route:String,onClick:(ScaleButtonState) -> Unit,) {
     Surface(
         shape = RoundedCornerShape(20.dp),
-        modifier = Modifier.size(width = 215.dp, height = 210.dp), elevation = 5.dp
+        modifier = Modifier.size(width = 215.dp, height = 210.dp).noRippleClickable { onSelected() }, elevation = 5.dp
     ) {
         val type = when (sort) {
             Sort.Food -> "美食"
@@ -117,7 +119,7 @@ fun MainPageLabel(sort: Sort, name: String,onClick:(ScaleButtonState) -> Unit) {
         }
         Column {
             Image(//TODO 加载网络图片
-                painter = painterResource(id = R.drawable.dla01),
+                painter = painterResource(id = id),
                 modifier = Modifier.size(width = 215.dp, height = 162.dp),
                 contentScale = ContentScale.Crop,
                 contentDescription = ""
@@ -129,7 +131,7 @@ fun MainPageLabel(sort: Sort, name: String,onClick:(ScaleButtonState) -> Unit) {
                         mutableStateOf(ScaleButtonState.IDLE)
                     }
                     var collectState by remember {
-                        mutableStateOf(ScaleButtonState.IDLE)
+                        mutableStateOf(if (userViewModel.collectList.contains(Collect(id,name,route))) ScaleButtonState.ACTIVE else ScaleButtonState.IDLE)
                     }
                     Row(
                         horizontalArrangement = Arrangement.End,
@@ -152,7 +154,13 @@ fun MainPageLabel(sort: Sort, name: String,onClick:(ScaleButtonState) -> Unit) {
                             state = collectState,
                             onToggle = {
                                 collectState =
-                                    if (collectState == ScaleButtonState.IDLE) ScaleButtonState.ACTIVE else ScaleButtonState.IDLE
+                                    if (collectState == ScaleButtonState.IDLE) {
+                                        userViewModel.collectList.add(Collect(id,name,route))
+                                        ScaleButtonState.ACTIVE
+                                    }else{
+                                        userViewModel.collectList.remove(Collect(id,name,route))
+                                        ScaleButtonState.IDLE
+                                    }
                             },
                             onClick ={onClick(collectState)} ,
                             size = 20.dp,
@@ -192,5 +200,5 @@ fun MainPageLabel(sort: Sort, name: String,onClick:(ScaleButtonState) -> Unit) {
 @Preview
 @Composable
 fun PreviewLabel() {
-    MainPageLabel(Sort.Food, "Content~Content~"){}
+//    MainPageLabel(Sort.Food, "Content~Content~"){}
 }

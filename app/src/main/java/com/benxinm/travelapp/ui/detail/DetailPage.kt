@@ -52,8 +52,7 @@ import java.text.SimpleDateFormat
 
 const val topBarHeight = 40
 @Composable
-fun DetailPage(navController: NavController,detailViewModel: DetailViewModel,communityViewModel:CommunityViewModel) {
-    val userViewModel: UserViewModel = viewModel()
+fun DetailPage(navController: NavController,detailViewModel: DetailViewModel,communityViewModel:CommunityViewModel,userViewModel: UserViewModel) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val context = LocalContext.current
     val listState = rememberLazyListState()
@@ -79,7 +78,7 @@ fun DetailPage(navController: NavController,detailViewModel: DetailViewModel,com
     Box(modifier = Modifier
         .fillMaxSize()
     ) {
-        DetailPageTopBar(navController,detailViewModel)
+        DetailPageTopBar(navController,detailViewModel,userViewModel)
         Box(
             modifier = Modifier
                 .systemBarsPadding()
@@ -118,7 +117,9 @@ fun DetailPage(navController: NavController,detailViewModel: DetailViewModel,com
 }
 
 @Composable
-fun DetailPageTopBar(navController: NavController,detailViewModel: DetailViewModel) {
+fun DetailPageTopBar(navController: NavController,detailViewModel: DetailViewModel,userViewModel: UserViewModel) {
+    val lifecycleOwner= LocalLifecycleOwner.current
+    val context= LocalContext.current
     Box(modifier = Modifier.background(Color.White)) {
         Box(modifier = Modifier.systemBarsPadding()) {
             Row(
@@ -158,7 +159,19 @@ fun DetailPageTopBar(navController: NavController,detailViewModel: DetailViewMod
                         RoundedCornerShape(30.dp)
                     )
                     .clickable {
+                        Repository.follow(userViewModel.token,userViewModel.email,detailViewModel.detailModel!!.email).observe(lifecycleOwner){result->
+                            if (result.isSuccess){
+                                if (subscribed){
+                                    val toast = Toast.makeText(context, "关注成功", Toast.LENGTH_SHORT)
+                                    toast.show()
+                                }else{
+                                    val toast = Toast.makeText(context, "取关成功", Toast.LENGTH_SHORT)
+                                    toast.show()
+                                }
+                            }
+                        }
                         subscribed = !subscribed
+
                     }) {
                     Text(
                         text = if (subscribed) "已关注" else "关注",

@@ -42,7 +42,14 @@ enum class Page(val text: String, val iconInt: Int, val selectedIconInt: Int) {
     Map(
         text = "地图", iconInt = 0,
         selectedIconInt = 0
-    ),GuideDetail(text = "攻略", iconInt = 0, selectedIconInt = 0),AddPost(text = "添加帖子", iconInt = 0, selectedIconInt = 0);
+    ),
+    GuideDetail(text = "攻略", iconInt = 0, selectedIconInt = 0), AddPost(
+        text = "添加帖子",
+        iconInt = 0,
+        selectedIconInt = 0
+    ),
+    Login(text = "登录", iconInt = 0, selectedIconInt = 0),
+    StoreDetail(text = "店铺详情", iconInt = 0, selectedIconInt = 0);
 
     companion object {
         fun fromRoute(route: String?): Page =
@@ -55,9 +62,11 @@ enum class Page(val text: String, val iconInt: Int, val selectedIconInt: Int) {
                 FlavourBottle.name -> FlavourBottle
                 Guide.name -> Guide
                 Store.name -> Store
-                Map.name->Map
-                GuideDetail.name->GuideDetail
-                AddPost.name->AddPost
+                Map.name -> Map
+                GuideDetail.name -> GuideDetail
+                AddPost.name -> AddPost
+                Login.name -> Login
+                StoreDetail.name->StoreDetail
                 null -> MainPage
                 else -> throw IllegalArgumentException("Route $route is not recognized")
             }

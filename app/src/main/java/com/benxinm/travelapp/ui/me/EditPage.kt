@@ -5,13 +5,12 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,6 +28,8 @@ import coil.compose.SubcomposeAsyncImageContent
 import com.benxinm.travelapp.R
 import com.benxinm.travelapp.logic.Repository
 import com.benxinm.travelapp.logic.dao.UserDao
+import com.benxinm.travelapp.ui.authentication.MyInputBox
+import com.benxinm.travelapp.ui.theme.yellow1
 import com.benxinm.travelapp.util.FileUtil
 import com.benxinm.travelapp.util.noRippleClickable
 import com.benxinm.travelapp.viewModel.UserViewModel
@@ -43,38 +44,42 @@ import java.io.File
 
 const val defaultUri = "https://s2.loli.net/2022/08/03/2W9Nmf1SBpoRFdi.jpg"
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun EditPage(navController: NavController) {
+fun EditPage(navController: NavController, userViewModel: UserViewModel) {
 
     val context = LocalContext.current
-    val lifecycleOwner= LocalLifecycleOwner.current
+    val lifecycleOwner = LocalLifecycleOwner.current
     val userDao = UserDao(context)
-    val scope= rememberCoroutineScope()
-    var imageUrl =  userDao.getImage.collectAsState(initial = "").value
+    val scope = rememberCoroutineScope()
     var selectImages by remember {
         mutableStateOf(listOf<Uri>())
     }
-
-    val userViewModel:UserViewModel= viewModel()
-    val galleryLauncher= rememberLauncherForActivityResult(contract = ActivityResultContracts.GetMultipleContents()){ urls ->
-        val file = File(FileUtil.getFileAbsolutePath(context,urls[0])?:"")
-//        Util.uri2Bitmap(urls[0])
-//        Log.d("ImageUpload", )
-        val imageBody = file.asRequestBody("/multipart/form-data".toMediaTypeOrNull())
-        val imageBodyPart= MultipartBody.Part.create(imageBody)
-        //TODO TEST REMEMBER TO CHANGE
-        Repository.uploadImage(userViewModel.tokenTest,userViewModel.emailTest,imageBodyPart).observe(lifecycleOwner){
-            val result=it.getOrNull()
-            if (result!=null && it.isSuccess){
-                scope.launch {
-                    userDao.saveUserImage(result["url"]!!)
-                }
-                userViewModel.profile=result["url"]!!
-                Toast.makeText(context,"上传成功!",Toast.LENGTH_SHORT).show()
-            }
-        }
-        selectImages=urls
+    var changeNickname by remember {
+        mutableStateOf(false)
     }
+    var name by remember {
+        mutableStateOf(userViewModel.nickname)
+    }
+    val galleryLauncher =
+        rememberLauncherForActivityResult(contract = ActivityResultContracts.GetMultipleContents()) { urls ->
+            val file = File(FileUtil.getFileAbsolutePath(context, urls[0]) ?: "")
+            val imageBody = file.asRequestBody("/multipart/form-data".toMediaTypeOrNull())
+            val imageBodyPart = MultipartBody.Part.createFormData("file", "1", imageBody)
+            //TODO TEST REMEMBER TO CHANGE
+            Repository.uploadImage(userViewModel.token, userViewModel.emailTest, imageBodyPart)
+                .observe(lifecycleOwner) {
+                    val result = it.getOrNull()
+                    if (result != null && it.isSuccess) {
+                        scope.launch {
+                            userDao.saveUserImage(result["url"]!!)
+                        }
+                        userViewModel.userProfile = result["url"]!!
+                        Toast.makeText(context, "上传成功!", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            selectImages = urls
+        }
     Box(modifier = Modifier.systemBarsPadding()) {
         Scaffold(topBar = {
             Row(horizontalArrangement = Arrangement.Start) {
@@ -94,7 +99,7 @@ fun EditPage(navController: NavController) {
                 modifier = Modifier.fillMaxSize()
             ) {
                 SubcomposeAsyncImage(
-                    model = if (selectImages.isEmpty()) if (imageUrl == "") defaultUri else imageUrl else selectImages[0],
+                    model = userViewModel.userProfile,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .clip(
@@ -110,8 +115,51 @@ fun EditPage(navController: NavController) {
                         SubcomposeAsyncImageContent()
                     }
                 }
-                Button(onClick = { galleryLauncher.launch("image/*")}, shape = RoundedCornerShape(50)) {
+                Button(
+                    onClick = { galleryLauncher.launch("image/*") },
+                    shape = RoundedCornerShape(50),
+                    colors = ButtonDefaults.buttonColors(yellow1)
+                ) {
                     Text(text = "修改头像")
+                }
+                AnimatedContent(targetState =changeNickname ) {
+                    if (changeNickname){
+                        MyInputBox(value = name, onValueChange = {name=it}, tint ="" )
+                    }
+                }
+                Button(onClick = {
+                    if (changeNickname){
+                        Repository.changeNickname(userViewModel.token, userViewModel.email, "9")
+                            .observe(lifecycleOwner) {
+                                if (it.isSuccess) {
+                                    userViewModel.nickname = "9"
+                                } else {
+                                    val toast = Toast.makeText(context, "修改失败", Toast.LENGTH_SHORT)
+                                    toast.show()
+                                }
+                            }
+                    }
+                    changeNickname=!changeNickname
+                }) {
+                    Text(text = if (changeNickname) "确认" else "修改昵称")
+                }
+                Button(onClick = {
+                    Repository.changePassword(
+                        userViewModel.token,
+                        userViewModel.email,
+                        "456789",
+                        "456789"
+                    ).observe(lifecycleOwner) {
+                        if (it.isSuccess) {
+                            val toast = Toast.makeText(context, "修改成功", Toast.LENGTH_SHORT)
+                            toast.show()
+                        } else {
+                            val toast = Toast.makeText(context, "修改失败", Toast.LENGTH_SHORT)
+                            toast.show()
+                        }
+                    }
+                }) {
+                    Text(text = "修改密码")
                 }
             }
         }

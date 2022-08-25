@@ -45,25 +45,49 @@ import com.benxinm.travelapp.data.Flavor
 import com.benxinm.travelapp.data.Page
 import com.benxinm.travelapp.data.responseModel.MyCollectModel
 import com.benxinm.travelapp.logic.Repository
-import com.benxinm.travelapp.ui.components.FlavorBottle
-import com.benxinm.travelapp.ui.components.MainPageLabel
+import com.benxinm.travelapp.ui.components.*
 import com.benxinm.travelapp.ui.theme.white
+import com.benxinm.travelapp.ui.theme.yellow1
 import com.benxinm.travelapp.util.noRippleClickable
+import com.benxinm.travelapp.viewModel.CommunityViewModel
+import com.benxinm.travelapp.viewModel.DetailViewModel
 import com.benxinm.travelapp.viewModel.UserViewModel
 
 @Composable
-fun MePage(navController: NavController,userViewModel: UserViewModel) {
+fun MePage(navController: NavController,userViewModel: UserViewModel,detailViewModel: DetailViewModel,communityViewModel: CommunityViewModel) {
     val listState = rememberLazyListState()
     val lifecycleOwner = LocalLifecycleOwner.current
-    var collectList by remember {
-        mutableStateOf(mutableListOf<MyCollectModel>())
-    }
     LaunchedEffect(key1 = userViewModel.targetEmail) {
         userViewModel.getFanSubNum(userViewModel.targetEmail)
         Repository.getMyCollect(userViewModel.targetEmail).observe(lifecycleOwner) {
             val result = it.getOrNull()
             if (result != null) {
-                collectList.addAll(result)
+//                collectList.addAll(result)
+            }
+        }
+    }
+    LaunchedEffect(key1 = true){
+        Repository.checkBottle(userViewModel.token,userViewModel.email).observe(lifecycleOwner){
+            val result=it.getOrNull()
+            if (result!=null){
+                for (list in result){
+                    val index= when(list[0]){
+                        "1"->3
+                        "2"->2
+                        "3"->0
+                        "4"->4
+                        "5"->1
+                        else->0
+                    }
+                    userViewModel.degrees[index]=list[1].toFloat()
+                }
+            }
+        }
+        Repository.getMyPost(userViewModel.token,userViewModel.email).observe(lifecycleOwner){result->
+            val list = result.getOrNull()
+            if (list != null && result.isSuccess) {
+                userViewModel.myPostList.clear()
+                userViewModel.myPostList.addAll(list)
             }
         }
     }
@@ -92,10 +116,10 @@ fun MePage(navController: NavController,userViewModel: UserViewModel) {
                         color = white,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(1500.dp)
+                            .height(480.dp)
                             .offset(y = (-30).dp),
                         shape = RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp),
-                        elevation = 5.dp
+                        elevation = 2.dp
                     ) {
                         Box(modifier = Modifier.padding(horizontal = 25.dp)) {
                             Column {
@@ -107,7 +131,7 @@ fun MePage(navController: NavController,userViewModel: UserViewModel) {
                                     Box(modifier = Modifier
                                         .offset(y = 12.dp)
                                         .clip(RoundedCornerShape(30.dp))
-                                        .background(Color.Red)
+                                        .background(yellow1)
                                         .clickable {
                                             navController.navigate(Page.Personal.name)
                                         }) {
@@ -124,7 +148,7 @@ fun MePage(navController: NavController,userViewModel: UserViewModel) {
                                 Spacer(modifier = Modifier.height(20.dp))
                                 Row(modifier = Modifier.padding(horizontal = 6.dp)) {
                                     Text(
-                                        text = "吃货旅人",
+                                        text = userViewModel.nickname,
                                         fontSize = 30.sp,
                                         fontWeight = FontWeight.Bold
                                     )
@@ -187,7 +211,7 @@ fun MePage(navController: NavController,userViewModel: UserViewModel) {
                                 Spacer(modifier = Modifier.height(20.dp))
                                 Surface(
                                     modifier = Modifier
-                                        .height(100.dp)
+                                        .height(150.dp)
                                         .fillMaxWidth(),
                                     shape = RoundedCornerShape(10.dp),
                                     elevation = 10.dp
@@ -196,18 +220,22 @@ fun MePage(navController: NavController,userViewModel: UserViewModel) {
                                         Column {
                                             Text(text = "我的收藏")
                                             LazyRow {
-                                                items(collectList) { it ->
-                                                    Box {
+                                                items(userViewModel.collectList) { it ->
+                                                    Box(modifier = Modifier.padding(end = 8.dp).width(90.dp)) {
                                                         Column(
-                                                            modifier = Modifier.fillMaxSize(),
+                                                            modifier = Modifier
+                                                                .fillMaxSize()
+                                                                .noRippleClickable {
+                                                                    navController.navigate(it.route)
+                                                                },
                                                             verticalArrangement = Arrangement.Center
                                                         ) {
                                                             SubcomposeAsyncImage(
-                                                                model = it.url,
+                                                                model = it.imgRes,
                                                                 contentScale = ContentScale.Crop,
                                                                 modifier = Modifier
-                                                                    .size(50.dp)
-                                                                    .clip(RoundedCornerShape(15.dp)),
+                                                                    .size(90.dp)
+                                                                    .clip(RoundedCornerShape(5.dp)),
                                                                 contentDescription = ""
                                                             ) {
                                                                 val state = painter.state
@@ -217,7 +245,9 @@ fun MePage(navController: NavController,userViewModel: UserViewModel) {
                                                                     SubcomposeAsyncImageContent()
                                                                 }
                                                             }
-                                                            Text(text = it.name, fontSize = 25.sp)
+                                                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                                                                Text(text = it.name, fontSize = 13.sp)
+                                                            }
                                                         }
                                                     }
                                                 }
@@ -239,6 +269,60 @@ fun MePage(navController: NavController,userViewModel: UserViewModel) {
                             .background(Color.Black),
                         contentScale = ContentScale.Crop
                     )
+                }
+            }
+            item {
+                Column(modifier=Modifier.fillMaxSize()) {
+                    Text(text = "帖子", fontSize = 22.sp, fontWeight = FontWeight.Black, modifier = Modifier.padding(start = 25.dp))
+                    StaggeredVerticalGrid(
+                        maxColumnWidth = 215.dp,
+                        modifier = Modifier.padding(horizontal = 15.dp)
+                    ) {
+                        userViewModel.myPostList/*list*/.forEach { label ->
+                            val likes = remember {
+                                mutableStateOf(0)
+                            }
+                            Log.d("WaterFallUrl", label.picUrl)
+                            WaterfallLabel(
+                                url = label./*imgRes*/picUrl/*, id = label.imgRes.toInt()*/,
+                                text = label./*text*/title,
+                                likes = likes.value, onSelected = {
+                                    detailViewModel.target = label.id
+                                    detailViewModel.targetNickname = label.nickname
+                                    communityViewModel.getUrls(
+                                        userViewModel.token,
+                                        label.id
+                                    )
+                                    communityViewModel.getPostDetail(
+                                        userViewModel.token,
+                                        label.id
+                                    )
+                                    detailViewModel.urlList.clear()
+                                    detailViewModel.urlList.add(label./*imgRes*/picUrl)
+//                                        detailViewModel.detailModel= PostDetailModel("User#${list.indexOf(label)}","1",label.text,1L,1,1,label.text)
+                                    navController.navigate(Page.Detail.name)
+                                }
+                            ) { scaleButtonState ->
+                                if (scaleButtonState == ScaleButtonState.IDLE) {
+                                    Repository.addLike("123", "123")
+                                        .observe(lifecycleOwner) {
+                                            if (it.isSuccess) {
+                                                likes.value++
+                                            }
+                                        }
+                                } else {
+                                    Repository.cancelLike("456", "456")
+                                        .observe(lifecycleOwner) {
+                                            if (it.isSuccess) {
+                                                likes.value--
+                                            }/*else{
+                                                likes.value--
+                                            }*/
+                                        }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }

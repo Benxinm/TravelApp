@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -26,6 +27,7 @@ import androidx.navigation.NavController
 import com.benxinm.travelapp.R
 import com.benxinm.travelapp.data.Flavor
 import com.benxinm.travelapp.data.Page
+import com.benxinm.travelapp.logic.Repository
 import com.benxinm.travelapp.ui.components.FlavorBottle
 import com.benxinm.travelapp.util.noRippleClickable
 import com.benxinm.travelapp.viewModel.UserViewModel
@@ -43,12 +45,24 @@ fun FlavorSelectPage(navController: NavController,userViewModel: UserViewModel) 
     var isChange by remember {
         mutableStateOf(false)
     }
+    val lifecycleOwner= LocalLifecycleOwner.current
     Box(modifier = Modifier.systemBarsPadding()) {
         com.google.accompanist.insets.ui.Scaffold(topBar = {
             Row(
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.noRippleClickable {
+                    for (i in flavorList.indices){
+                        val type= when(flavorList[i]){
+                            Flavor.Sour->"3"
+                            Flavor.Sweet->"5"
+                            Flavor.Salty->"2"
+                            Flavor.Bitter->"1"
+                            Flavor.Spicy->"4"
+                        }
+                        val degree=userViewModel.degrees[i].toString()
+                        Repository.setBottle(userViewModel.token,userViewModel.email,type, degree).observe(lifecycleOwner){}
+                    }
                     navController.popBackStack()
                 }) {
                 Icon(

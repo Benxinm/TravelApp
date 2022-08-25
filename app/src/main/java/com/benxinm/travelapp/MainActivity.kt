@@ -23,7 +23,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import com.benxinm.travelapp.ui.TravelApp
+import com.benxinm.travelapp.ui.authentication.AuthenticationPage
 import com.benxinm.travelapp.ui.detail.GuideDetail
+import com.benxinm.travelapp.ui.detail.StoreDetail
 import com.benxinm.travelapp.ui.post.PersonalPost
 import com.benxinm.travelapp.ui.theme.TravelAppTheme
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -55,11 +57,7 @@ class MainActivity : ComponentActivity() {
                     PermissionStatus.Granted -> {
                         Box {
                             TravelApp()
-//                            PersonalPost()
-//                    SearchPage()
-//                    GuideDetail()
-//                    FoodPage()
-//                    AuthenticationPage()
+//                            StoreDetail()
                         }
                     }
                     is PermissionStatus.Denied -> {

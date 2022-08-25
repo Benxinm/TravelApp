@@ -10,10 +10,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.benxinm.travelapp.data.Page
+import com.benxinm.travelapp.ui.authentication.AuthenticationPage
 import com.benxinm.travelapp.ui.community.Community
 import com.benxinm.travelapp.ui.detail.DetailPage
 import com.benxinm.travelapp.ui.components.NavigationBar
 import com.benxinm.travelapp.ui.detail.GuideDetail
+import com.benxinm.travelapp.ui.detail.StoreDetail
 import com.benxinm.travelapp.ui.main.GuidePage
 import com.benxinm.travelapp.ui.main.MainPage
 import com.benxinm.travelapp.ui.main.MapPage
@@ -24,6 +26,7 @@ import com.benxinm.travelapp.ui.me.MePage
 import com.benxinm.travelapp.ui.post.PersonalPost
 import com.benxinm.travelapp.viewModel.CommunityViewModel
 import com.benxinm.travelapp.viewModel.DetailViewModel
+import com.benxinm.travelapp.viewModel.LoginViewModel
 import com.benxinm.travelapp.viewModel.UserViewModel
 
 @Composable
@@ -34,6 +37,7 @@ fun TravelApp() {
     val currentPage = Page.fromRoute(backStackEntry.value?.destination?.route)
     val detailViewModel:DetailViewModel= viewModel()
     val communityViewModel:CommunityViewModel= viewModel()
+    val loginViewModel:LoginViewModel= viewModel()
     var check by remember {
         mutableStateOf(true)
     }
@@ -52,11 +56,17 @@ fun TravelApp() {
             startDestination = Page.MainPage.name,
             modifier = Modifier.padding(innerPadding)
         ) {
+            composable(Page.Login.name){
+                LaunchedEffect(key1 = Unit) {
+                    check = false
+                }
+                AuthenticationPage(navController = navController,loginViewModel, userViewModel)
+            }
             composable(Page.MainPage.name) {
                 LaunchedEffect(key1 = Unit) {
                     check = true
                 }
-                MainPage(navController)
+                MainPage(navController,userViewModel)
             }
             composable(Page.Community.name) {
                 LaunchedEffect(key1 = Unit) {
@@ -68,13 +78,13 @@ fun TravelApp() {
                 LaunchedEffect(key1 = Unit) {
                     check = false
                 }
-                DetailPage(navController,detailViewModel,communityViewModel)
+                DetailPage(navController,detailViewModel,communityViewModel,userViewModel)
             }
             composable(Page.Personal.name){
                 LaunchedEffect(key1 = Unit) {
                     check = false
                 }
-                EditPage(navController)
+                EditPage(navController,userViewModel)
             }
             composable(Page.FlavourBottle.name){
                 LaunchedEffect(key1 = Unit) {
@@ -86,19 +96,19 @@ fun TravelApp() {
                 LaunchedEffect(key1 = Unit) {
                     check = true
                 }
-                MePage(navController,userViewModel)
+                MePage(navController,userViewModel,detailViewModel,communityViewModel)
             }
             composable(Page.Guide.name){
                 LaunchedEffect(key1 = Unit) {
                     check = false
                 }
-                GuidePage(navController = navController)
+                GuidePage(navController = navController,userViewModel)
             }
             composable(Page.Store.name){
                 LaunchedEffect(key1 = Unit) {
                     check = false
                 }
-                StorePage(navController = navController)
+                StorePage(navController = navController,userViewModel)
             }
             composable(Page.Map.name){
                 LaunchedEffect(key1 = Unit) {
@@ -116,7 +126,13 @@ fun TravelApp() {
                 LaunchedEffect(key1 = Unit) {
                     check = false
                 }
-                PersonalPost(navController)
+                PersonalPost(navController,userViewModel)
+            }
+            composable(Page.StoreDetail.name){
+                LaunchedEffect(key1 = Unit) {
+                    check = false
+                }
+                StoreDetail(navController)
             }
         }
     }

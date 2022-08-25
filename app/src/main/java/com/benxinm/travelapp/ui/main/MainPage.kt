@@ -6,6 +6,9 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
@@ -16,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -24,11 +28,11 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.benxinm.travelapp.R
 import com.benxinm.travelapp.data.Page
-import com.benxinm.travelapp.ui.components.AnimatedUnderLineSelector
-import com.benxinm.travelapp.ui.components.HomeSearchBar
-import com.benxinm.travelapp.ui.components.Location
-import com.benxinm.travelapp.ui.components.Type
+import com.benxinm.travelapp.data.Sort
+import com.benxinm.travelapp.logic.Repository
+import com.benxinm.travelapp.ui.components.*
 import com.benxinm.travelapp.util.noRippleClickable
+import com.benxinm.travelapp.viewModel.UserViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.PagerState
@@ -38,8 +42,9 @@ import java.nio.file.attribute.BasicFileAttributeView
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
-fun MainPage(navController: NavController) {
+fun MainPage(navController: NavController,userViewModel: UserViewModel) {
     var tabType by remember { mutableStateOf(Type.Recommendation) }
+    val lifecycleOwner= LocalLifecycleOwner.current
     Box(modifier = Modifier.systemBarsPadding()) {
         Box(modifier = Modifier.padding(horizontal = 10.dp)) {
             val state = rememberPagerState()
@@ -56,10 +61,18 @@ fun MainPage(navController: NavController) {
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()
                 ) {
-                    BasicItem(res = R.drawable.ic_shop, text = "美味店铺", modifier = Modifier.weight(1f).noRippleClickable { navController.navigate(Page.Store.name) })
+                    BasicItem(res = R.drawable.ic_shop, text = "美味店铺", modifier = Modifier
+                        .weight(1f)
+                        .noRippleClickable { navController.navigate(Page.Store.name) })
                     BasicItem(res = R.drawable.ic_speciality, text = "特色菜肴",Modifier.weight(1f))
-                    BasicItem(res = R.drawable.ic_deliciouslibrary, text = "美食攻略",Modifier.weight(1f).noRippleClickable { navController.navigate(
-                        Page.Guide.name) })
+                    BasicItem(res = R.drawable.ic_deliciouslibrary, text = "美食攻略",
+                        Modifier
+                            .weight(1f)
+                            .noRippleClickable {
+                                navController.navigate(
+                                    Page.Guide.name
+                                )
+                            })
                 }
                 AnimatedUnderLineSelector(
                     backgroundColor = Color.Transparent,
@@ -68,6 +81,52 @@ fun MainPage(navController: NavController) {
                         tabType = currentPage
                     }
                 )
+                LazyVerticalGrid(columns = GridCells.Fixed(2)){
+                    item {
+                        Box(modifier = Modifier.padding(5.dp)){
+                            MainPageLabel(sort = Sort.Restaurant, id = R.drawable.m_3, route = Page.StoreDetail.name,onSelected = {navController.navigate(Page.StoreDetail.name)},name ="聚春园", userViewModel = userViewModel ){
+                                    scaleButtonState ->
+                                if (scaleButtonState == ScaleButtonState.IDLE) {
+                                    Repository.addLike("123", "123")
+                                        .observe(lifecycleOwner) {
+//                                        if (it.isSuccess) {
+//                                            likes.value++
+//                                        }
+                                        }
+                                } else {
+                                    Repository.cancelLike("456", "456")
+                                        .observe(lifecycleOwner) {
+//
+                                        }
+                                }
+                            }
+                        }
+                    }
+                    item {
+                        Box(modifier = Modifier.padding(8.dp)) {
+                            MainPageLabel(sort = Sort.Strategy, id = R.drawable.m_1, route = Page.GuideDetail.name ,onSelected = {navController.navigate(Page.GuideDetail .name)},name ="达闽美食街夜游", userViewModel = userViewModel){
+                                    scaleButtonState ->
+                                if (scaleButtonState == ScaleButtonState.IDLE) {
+                                    Repository.addLike("123", "123")
+                                        .observe(lifecycleOwner) {
+//                                        if (it.isSuccess) {
+//                                            likes.value++
+//                                        }
+                                        }
+                                } else {
+                                    Repository.cancelLike("456", "456")
+                                        .observe(lifecycleOwner) {
+//                                        if (it.isSuccess) {
+//                                            likes.value--
+//                                        }/*else{
+//                                                likes.value--
+//                                            }*/
+                                        }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }

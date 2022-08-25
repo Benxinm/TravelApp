@@ -1,8 +1,11 @@
 package com.benxinm.travelapp.ui.post
 
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -20,10 +23,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
@@ -34,14 +39,32 @@ import coil.compose.SubcomposeAsyncImage
 import coil.compose.SubcomposeAsyncImageContent
 import com.benxinm.travelapp.R
 import com.benxinm.travelapp.data.askModel.AddCommentModel
+import com.benxinm.travelapp.logic.Repository
 import com.benxinm.travelapp.ui.theme.blue1
+import com.benxinm.travelapp.util.FileUtil
 import com.benxinm.travelapp.util.noRippleClickable
+import com.benxinm.travelapp.viewModel.UserViewModel
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import java.io.File
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun PersonalPost(navController: NavController) {
+fun PersonalPost(navController: NavController,userViewModel: UserViewModel) {
     val context = LocalContext.current
+    val lifecycleOwner= LocalLifecycleOwner.current
     var selectImages by remember {
         mutableStateOf(listOf<Uri>())
+    }
+    var text by remember {
+        mutableStateOf("")
+    }
+    var title by remember {
+        mutableStateOf("")
+    }
+    var show by remember {
+        mutableStateOf(false)
     }
     val galleryLauncher =
         rememberLauncherForActivityResult(contract = ActivityResultContracts.GetMultipleContents()) {
@@ -55,9 +78,11 @@ fun PersonalPost(navController: NavController) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_back),
                     contentDescription = "返回",
-                    modifier = Modifier.size(30.dp).noRippleClickable {
-                        navController.popBackStack()
-                    }
+                    modifier = Modifier
+                        .size(30.dp)
+                        .noRippleClickable {
+                            navController.popBackStack()
+                        }
                 )
             }
             Spacer(modifier = Modifier.height(10.dp))
@@ -92,9 +117,7 @@ fun PersonalPost(navController: NavController) {
                 }
             }
             Spacer(modifier = Modifier.height(15.dp))
-            var title by remember {
-                mutableStateOf("")
-            }
+
             Box(
                 Modifier
                     .fillMaxWidth(),
@@ -137,9 +160,7 @@ fun PersonalPost(navController: NavController) {
                 )
             }
             Divider()
-            var text by remember {
-                mutableStateOf("")
-            }
+
             Box(
                 Modifier
                     .fillMaxWidth(),
@@ -179,13 +200,37 @@ fun PersonalPost(navController: NavController) {
                 )
             }
         }
-        Column(horizontalAlignment = Alignment.CenterHorizontally,verticalArrangement = Arrangement.Bottom, modifier = Modifier.fillMaxSize().padding(bottom = 10.dp)) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally,verticalArrangement = Arrangement.Bottom, modifier = Modifier
+            .fillMaxSize()
+            .padding(bottom = 10.dp)) {
             Box(modifier = Modifier
                 .clip(RoundedCornerShape(30.dp))
                 .background(Color.Red)
                 .fillMaxWidth(0.8f)
                 .clickable {
-
+                    val fileList = mutableListOf<MultipartBody.Part>()
+                    for (i in selectImages.indices) {
+                        val file = File(FileUtil.getFileAbsolutePath(context, selectImages[i]))
+                        val imageBody =
+                            file.asRequestBody("/multipart/form-data".toMediaTypeOrNull())
+                        val body = MultipartBody.Part.createFormData("file", file.name, imageBody)
+                        fileList.add(body)
+                    }
+                    val titleBodyPart=MultipartBody.Part.createFormData("title",title)
+                    val textBodyPart=MultipartBody.Part.createFormData("detail",text)
+                    show=true
+                    Repository
+                        .addPost(userViewModel.token, userViewModel.email, titleBodyPart, textBodyPart, fileList)
+                        .observe(lifecycleOwner) { result ->
+                            if (result.isSuccess) {
+                                show=false
+                                navController.popBackStack()
+                                Toast.makeText(context, "上传成功", Toast.LENGTH_SHORT).show()
+                            } else {
+                                show=false
+                                Toast.makeText(context, "上传失败", Toast.LENGTH_SHORT).show()
+                            }
+                        }
                 }) {
                 Row(
                     horizontalArrangement = Arrangement.Center,
@@ -198,6 +243,21 @@ fun PersonalPost(navController: NavController) {
                         fontSize = 28.sp,
                         modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
                     )
+                }
+            }
+        }
+    }
+    AnimatedContent(targetState = show) {
+        if (show){
+            Box(modifier = Modifier.fillMaxSize()) {
+                Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
+                    Box(modifier = Modifier.size(130.dp).background(shape = RoundedCornerShape(15.dp), brush = Brush.horizontalGradient(
+                        listOf(Color.LightGray,Color.LightGray)), alpha = 0.4f)) {
+                        Column(modifier = Modifier.fillMaxSize(),verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally){
+                            CircularProgressIndicator(modifier = Modifier.size(90.dp))
+                            Text(text = "上传中...")
+                        }
+                    }
                 }
             }
         }
@@ -215,12 +275,11 @@ fun PostImageLabel(uri: Uri) {
                 1.dp, Color.LightGray,
                 RoundedCornerShape(10.dp)
             )
-
     ) {
         SubcomposeAsyncImage(model = uri, contentDescription = "", contentScale = ContentScale.Crop) {
             val state = painter.state
             if (state is AsyncImagePainter.State.Loading || state is AsyncImagePainter.State.Error) {
-                CircularProgressIndicator()
+                CircularProgressIndicator(modifier = Modifier.size(80.dp))
             } else {
                 SubcomposeAsyncImageContent()
             }
@@ -228,7 +287,3 @@ fun PostImageLabel(uri: Uri) {
     }
 }
 
-@Composable
-fun AddImageLabel() {
-
-}
