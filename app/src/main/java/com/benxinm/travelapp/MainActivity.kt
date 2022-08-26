@@ -57,8 +57,8 @@ class MainActivity : ComponentActivity() {
                 when (permissionState.status) {
                     PermissionStatus.Granted -> {
                         Box {
-//                            TravelApp()
-                            SearchPage()
+                            TravelApp()
+//                            SearchPage()
 //                            FoodPage()
 //                            StoreDetail()
                         }

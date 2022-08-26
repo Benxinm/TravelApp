@@ -50,7 +50,7 @@ fun TravelApp() {
     }, modifier = Modifier.fillMaxSize()) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = Page.MainPage.name,
+            startDestination = Page.Login.name,
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(Page.Login.name){
