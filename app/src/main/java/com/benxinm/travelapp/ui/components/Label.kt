@@ -24,14 +24,15 @@ import coil.compose.SubcomposeAsyncImage
 import coil.compose.SubcomposeAsyncImageContent
 import com.benxinm.travelapp.R
 import com.benxinm.travelapp.data.Collect
+import com.benxinm.travelapp.data.Page
 import com.benxinm.travelapp.data.Sort
 import com.benxinm.travelapp.util.noRippleClickable
 import com.benxinm.travelapp.viewModel.UserViewModel
 import kotlinx.coroutines.flow.Flow
 
 @Composable
-fun WaterfallLabel(url:String, text:String,id:Int=0,
-                   likes:  Int,onSelected:()->Unit={},
+fun WaterfallLabel(url:String,text:String,id:String="",
+                   likes:  Int,userViewModel: UserViewModel,onSelected:()->Unit={},
                    onClick:(ScaleButtonState)->Unit) {
     Surface(
         shape = RoundedCornerShape(20.dp),
@@ -49,9 +50,9 @@ fun WaterfallLabel(url:String, text:String,id:Int=0,
                     SubcomposeAsyncImageContent()
                 }
             }
-            if (id!=0){
-                Image(painter = painterResource(id = id), contentDescription = "",contentScale = ContentScale.Fit, modifier = Modifier.width(200.dp))
-            }
+//            if (id!=0){
+//                Image(painter = painterResource(id = id), contentDescription = "",contentScale = ContentScale.Fit, modifier = Modifier.width(200.dp))
+//            }
             Box(modifier = Modifier.padding(horizontal = 10.dp)) {
                 Column(verticalArrangement = Arrangement.Center) {
                     Text(text = text)
@@ -59,7 +60,7 @@ fun WaterfallLabel(url:String, text:String,id:Int=0,
                         mutableStateOf(ScaleButtonState.IDLE)
                     }
                     var collectState by remember {
-                        mutableStateOf(ScaleButtonState.IDLE)
+                        mutableStateOf(if (userViewModel.collectList.contains(Collect(url = url, name = text, id = id))) ScaleButtonState.ACTIVE else ScaleButtonState.IDLE)
                     }
                     Row(
                         horizontalArrangement = Arrangement.End,
@@ -70,7 +71,13 @@ fun WaterfallLabel(url:String, text:String,id:Int=0,
                             state = likeState,
                             onToggle = {
                                 likeState =
-                                    if (likeState == ScaleButtonState.IDLE) ScaleButtonState.ACTIVE else ScaleButtonState.IDLE
+                                    if (likeState == ScaleButtonState.IDLE){
+                                        userViewModel.collectList.add(Collect(url = url, name = text, id = id))
+                                        ScaleButtonState.ACTIVE
+                                    }else{
+                                        userViewModel.collectList.remove(Collect(url = url, name = text, id = id))
+                                        ScaleButtonState.IDLE
+                                    }
                             },
                             onClick = onClick,
                             size = 20.dp,

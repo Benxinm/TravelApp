@@ -16,10 +16,7 @@ import com.benxinm.travelapp.ui.detail.DetailPage
 import com.benxinm.travelapp.ui.components.NavigationBar
 import com.benxinm.travelapp.ui.detail.GuideDetail
 import com.benxinm.travelapp.ui.detail.StoreDetail
-import com.benxinm.travelapp.ui.main.GuidePage
-import com.benxinm.travelapp.ui.main.MainPage
-import com.benxinm.travelapp.ui.main.MapPage
-import com.benxinm.travelapp.ui.main.StorePage
+import com.benxinm.travelapp.ui.main.*
 import com.benxinm.travelapp.ui.me.EditPage
 import com.benxinm.travelapp.ui.me.FlavorSelectPage
 import com.benxinm.travelapp.ui.me.MePage
@@ -114,7 +111,7 @@ fun TravelApp() {
                 LaunchedEffect(key1 = Unit) {
                     check = false
                 }
-                MapPage(navController = navController)
+                MapPage(navController = navController,userViewModel)
             }
             composable(Page.GuideDetail.name){
                 LaunchedEffect(key1 = Unit) {
@@ -133,6 +130,18 @@ fun TravelApp() {
                     check = false
                 }
                 StoreDetail(navController)
+            }
+            composable(Page.Food.name){
+                LaunchedEffect(key1 = Unit) {
+                    check = false
+                }
+                FoodPage(navController = navController,userViewModel)
+            }
+            composable(Page.FoodDetail.name){
+                LaunchedEffect(key1 = Unit) {
+                    check = false
+                }
+                FoodDetail(navController = navController,userViewModel)
             }
         }
     }

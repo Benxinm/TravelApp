@@ -4,7 +4,6 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.Surface
@@ -25,7 +24,6 @@ import androidx.navigation.NavController
 import com.benxinm.travelapp.R
 import com.benxinm.travelapp.data.Collect
 import com.benxinm.travelapp.data.Page
-import com.benxinm.travelapp.data.responseModel.TwoParamShowModel
 import com.benxinm.travelapp.ui.components.AnimatedScaleButton
 import com.benxinm.travelapp.ui.components.ScaleButtonState
 import com.benxinm.travelapp.util.noRippleClickable
@@ -33,7 +31,6 @@ import com.benxinm.travelapp.viewModel.UserViewModel
 
 @Composable
 fun StorePage(navController: NavController,userViewModel: UserViewModel) {
-    val list = listOf(TwoParamShowModel("达闽美食街夜游", R.drawable.m_1.toString()))
     Box(modifier = Modifier.systemBarsPadding()) {
         Box(modifier = Modifier.padding(horizontal = 10.dp)) {
             Column(modifier = Modifier.fillMaxSize()) {

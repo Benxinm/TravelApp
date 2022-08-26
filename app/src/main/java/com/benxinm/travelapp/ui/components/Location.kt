@@ -1,6 +1,7 @@
 package com.benxinm.travelapp.ui.components
 
 import android.location.Location
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
@@ -14,14 +15,15 @@ import androidx.navigation.NavController
 import com.benxinm.travelapp.R
 import com.benxinm.travelapp.data.Page
 import com.benxinm.travelapp.util.noRippleClickable
+import com.benxinm.travelapp.viewModel.UserViewModel
 
 @Composable
-fun Location(navController: NavController) {
+fun Location(navController: NavController,userViewModel: UserViewModel) {
     Box(modifier = Modifier.wrapContentSize().noRippleClickable { navController.navigate(Page.Map.name) }) {
         Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.padding(top = 5.dp)) {
-            Icon(painter = painterResource(id = R.drawable.ic_locate), contentDescription ="位置", modifier = Modifier.size(25.dp))
+            Image(painter = painterResource(id = R.drawable.ic_locate), contentDescription ="位置", modifier = Modifier.size(25.dp))
             Spacer(modifier = Modifier.width(3.dp))
-            Text(text = "福州", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+            Text(text = userViewModel.location, fontSize = 20.sp, fontWeight = FontWeight.Bold)
         }
     }
 }

@@ -26,6 +26,7 @@ import com.benxinm.travelapp.ui.TravelApp
 import com.benxinm.travelapp.ui.authentication.AuthenticationPage
 import com.benxinm.travelapp.ui.detail.GuideDetail
 import com.benxinm.travelapp.ui.detail.StoreDetail
+import com.benxinm.travelapp.ui.main.FoodPage
 import com.benxinm.travelapp.ui.post.PersonalPost
 import com.benxinm.travelapp.ui.theme.TravelAppTheme
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -56,7 +57,9 @@ class MainActivity : ComponentActivity() {
                 when (permissionState.status) {
                     PermissionStatus.Granted -> {
                         Box {
-                            TravelApp()
+//                            TravelApp()
+                            SearchPage()
+//                            FoodPage()
 //                            StoreDetail()
                         }
                     }

@@ -25,7 +25,7 @@ class UserViewModel:ViewModel() {
     var fanNum by mutableStateOf(0)
     var subNum by mutableStateOf(0)
     val myPostList= mutableStateListOf<PostModel>()
-
+    var location by mutableStateOf("福州")
     private val getLiveData = MutableLiveData<String>()
     val fanSubNumLiveData=Transformations.switchMap(getLiveData){email->
         Repository.getFanSubNum(email)

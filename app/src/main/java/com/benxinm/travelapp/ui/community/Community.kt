@@ -80,7 +80,7 @@ fun Community(
                             HomeSearchBar()
                         }
                         Spacer(modifier = Modifier.height(10.dp))
-                        Location(navController)
+                        Location(navController,userViewModel)
                     }
                 }
                 Box(
@@ -101,7 +101,7 @@ fun Community(
                                     Log.d("WaterFallUrl", label.picUrl)
                                     WaterfallLabel(
                                         url = label./*imgRes*/picUrl/*, id = label.imgRes.toInt()*/,
-                                        text = label./*text*/title,
+                                        text = label./*text*/title, id = label.id,
                                         likes = likes.value, onSelected = {
                                             detailViewModel.target = label.id
                                             detailViewModel.targetNickname = label.nickname
@@ -117,7 +117,7 @@ fun Community(
                                             detailViewModel.urlList.add(label./*imgRes*/picUrl)
 //                                        detailViewModel.detailModel= PostDetailModel("User#${list.indexOf(label)}","1",label.text,1L,1,1,label.text)
                                             navController.navigate(Page.Detail.name)
-                                        }
+                                        }, userViewModel = userViewModel
                                     ) { scaleButtonState ->
                                         if (scaleButtonState == ScaleButtonState.IDLE) {
                                             Repository.addLike("123", "123")

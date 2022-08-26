@@ -33,9 +33,9 @@ fun SearchPage(/*navController: NavController*/) {
             .fillMaxSize()
             .padding(horizontal = 10.dp)) {
             Column {
+                Spacer(modifier = Modifier.height(10.dp))
                 HomeSearchBar()
                 Spacer(modifier = Modifier.height(20.dp))
-
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
@@ -50,6 +50,5 @@ fun SearchPage(/*navController: NavController*/) {
                 }
             }
         }
-
     }
 }

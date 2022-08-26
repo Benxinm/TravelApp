@@ -116,10 +116,9 @@ fun MePage(navController: NavController,userViewModel: UserViewModel,detailViewM
                         color = white,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(480.dp)
+                            .height(430.dp)
                             .offset(y = (-30).dp),
-                        shape = RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp),
-                        elevation = 2.dp
+                        shape = RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp)
                     ) {
                         Box(modifier = Modifier.padding(horizontal = 25.dp)) {
                             Column {
@@ -221,17 +220,34 @@ fun MePage(navController: NavController,userViewModel: UserViewModel,detailViewM
                                             Text(text = "我的收藏")
                                             LazyRow {
                                                 items(userViewModel.collectList) { it ->
-                                                    Box(modifier = Modifier.padding(end = 8.dp).width(90.dp)) {
+                                                    Box(modifier = Modifier
+                                                        .padding(end = 8.dp)
+                                                        .width(90.dp)) {
                                                         Column(
                                                             modifier = Modifier
                                                                 .fillMaxSize()
                                                                 .noRippleClickable {
-                                                                    navController.navigate(it.route)
+                                                                    if (it.route.isEmpty()) {
+                                                                        detailViewModel.target =
+                                                                            it.id
+                                                                        communityViewModel.getUrls(
+                                                                            userViewModel.token,
+                                                                            it.id
+                                                                        )
+                                                                        communityViewModel.getPostDetail(
+                                                                            userViewModel.token,
+                                                                            it.id
+                                                                        )
+                                                                        detailViewModel.urlList.clear()
+                                                                        navController.navigate(Page.Detail.name)
+                                                                    } else {
+                                                                        navController.navigate(it.route)
+                                                                    }
                                                                 },
                                                             verticalArrangement = Arrangement.Center
                                                         ) {
                                                             SubcomposeAsyncImage(
-                                                                model = it.imgRes,
+                                                                model = if (it.url.isEmpty()) it.imgRes else it.url,
                                                                 contentScale = ContentScale.Crop,
                                                                 modifier = Modifier
                                                                     .size(90.dp)
@@ -258,21 +274,35 @@ fun MePage(navController: NavController,userViewModel: UserViewModel,detailViewM
                             }
                         }
                     }
-                    Image(
-                        painter = painterResource(id = R.drawable.dla01),
-                        contentDescription = "头像",
+                    SubcomposeAsyncImage(model = userViewModel.userProfile, contentDescription = "头像",
                         modifier = Modifier
                             .offset(x = 30.dp, y = (-80).dp)
                             .size(100.dp)
                             .clip(CircleShape)
-                            .border(2.dp, Color.Yellow, CircleShape)
-                            .background(Color.Black),
-                        contentScale = ContentScale.Crop
-                    )
+                            .border(2.dp, Color.Yellow, CircleShape),
+                        contentScale = ContentScale.Crop) {
+                        val state=painter.state
+                        if (state is AsyncImagePainter.State.Loading || state is AsyncImagePainter.State.Error) {
+                            CircularProgressIndicator(modifier = Modifier.size(80.dp))
+                        } else {
+                            SubcomposeAsyncImageContent()
+                        }
+                    }
+//                    Image(
+//                        painter = painterResource(id = R.drawable.dla01),
+//                        contentDescription = "头像",
+//                        modifier = Modifier
+//                            .offset(x = 30.dp, y = (-80).dp)
+//                            .size(100.dp)
+//                            .clip(CircleShape)
+//                            .border(2.dp, Color.Yellow, CircleShape)
+//                            .background(Color.Black),
+//                        contentScale = ContentScale.Crop
+//                    )
                 }
             }
             item {
-                Column(modifier=Modifier.fillMaxSize()) {
+                Column(modifier=Modifier.fillMaxSize().offset(y=(-30).dp)) {
                     Text(text = "帖子", fontSize = 22.sp, fontWeight = FontWeight.Black, modifier = Modifier.padding(start = 25.dp))
                     StaggeredVerticalGrid(
                         maxColumnWidth = 215.dp,
@@ -298,11 +328,10 @@ fun MePage(navController: NavController,userViewModel: UserViewModel,detailViewM
                                         label.id
                                     )
                                     detailViewModel.urlList.clear()
-                                    detailViewModel.urlList.add(label./*imgRes*/picUrl)
 //                                        detailViewModel.detailModel= PostDetailModel("User#${list.indexOf(label)}","1",label.text,1L,1,1,label.text)
                                     navController.navigate(Page.Detail.name)
                                 }
-                            ) { scaleButtonState ->
+                            , userViewModel = userViewModel) { scaleButtonState ->
                                 if (scaleButtonState == ScaleButtonState.IDLE) {
                                     Repository.addLike("123", "123")
                                         .observe(lifecycleOwner) {
@@ -331,33 +360,18 @@ fun MePage(navController: NavController,userViewModel: UserViewModel,detailViewM
                 listState.firstVisibleItemIndex > 0
             }
         }
-        MePageTopBar(startAnimation)
+        MePageTopBar(startAnimation,userViewModel)
     }
 }
 
 @Composable
-fun MePageTopBar(startAnimation: Boolean) {
+fun MePageTopBar(startAnimation: Boolean,userViewModel: UserViewModel) {
     val topBarColor by animateColorAsState(
         targetValue = if (startAnimation) Color.DarkGray else Color.Transparent,
         animationSpec = tween(delayMillis = 0, durationMillis = 300, easing = LinearOutSlowInEasing)
     )
     Box(modifier = Modifier.background(topBarColor)) {
         Box(modifier = Modifier.systemBarsPadding()) {
-//            Row(
-//                modifier = Modifier
-//                    .height(40.dp)
-//                    .fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
-//            ) {
-//                Icon(
-//                    painter = painterResource(id = R.drawable.ic_back),
-//                    contentDescription = "返回",
-//                    modifier = Modifier
-//                        .size(30.dp)
-//                        .padding(start = 10.dp)
-//                        .clip(CircleShape)
-//                        .clickable { }, tint = Color.White
-//                )
-//            }
             Row(
                 modifier = Modifier
                     .height(40.dp)
@@ -378,15 +392,19 @@ fun MePageTopBar(startAnimation: Boolean) {
                         )
                     )
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.dla01),
-                        contentDescription = "小头像",
+                    SubcomposeAsyncImage(model =userViewModel.userProfile , contentDescription ="小头像",
                         modifier = Modifier
                             .size(30.dp)
                             .clip(CircleShape),
                         alignment = Alignment.Center,
-                        contentScale = ContentScale.Crop
-                    )
+                        contentScale = ContentScale.Crop ) {
+                        val state=painter.state
+                        if (state is AsyncImagePainter.State.Loading || state is AsyncImagePainter.State.Error) {
+                            CircularProgressIndicator(modifier = Modifier.size(10.dp))
+                        } else {
+                            SubcomposeAsyncImageContent()
+                        }
+                    }
                 }
             }
         }

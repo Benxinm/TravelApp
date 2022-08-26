@@ -50,7 +50,7 @@ fun MainPage(navController: NavController,userViewModel: UserViewModel) {
             val state = rememberPagerState()
             Column {
                 Row(horizontalArrangement = Arrangement.Center) {
-                    Location(navController)
+                    Location(navController,userViewModel)
                     Spacer(modifier = Modifier.width(6.dp))
                     HomeSearchBar()
                 }
@@ -64,7 +64,7 @@ fun MainPage(navController: NavController,userViewModel: UserViewModel) {
                     BasicItem(res = R.drawable.ic_shop, text = "美味店铺", modifier = Modifier
                         .weight(1f)
                         .noRippleClickable { navController.navigate(Page.Store.name) })
-                    BasicItem(res = R.drawable.ic_speciality, text = "特色菜肴",Modifier.weight(1f))
+                    BasicItem(res = R.drawable.ic_speciality, text = "特色菜肴",Modifier.weight(1f).noRippleClickable { navController.navigate(Page.Food.name) })
                     BasicItem(res = R.drawable.ic_deliciouslibrary, text = "美食攻略",
                         Modifier
                             .weight(1f)
@@ -138,7 +138,7 @@ fun HorizontalSlider(state: PagerState) {
     val imageUrl = remember {//TODO 预留接口
         mutableStateOf("")
     }
-    val list = listOf(R.drawable.m_1, R.drawable.m_3, R.drawable.dla01)
+    val list = listOf(R.drawable.m_1, R.drawable.m_3, R.drawable.m_4)
     Column {
         Spacer(modifier = Modifier.height(20.dp))
         HorizontalPager(state = state, count = 3) { page ->

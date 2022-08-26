@@ -52,14 +52,23 @@ fun EditPage(navController: NavController, userViewModel: UserViewModel) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val userDao = UserDao(context)
     val scope = rememberCoroutineScope()
-    var selectImages by remember {
-        mutableStateOf(listOf<Uri>())
-    }
+//    var selectImages by remember {
+//        mutableStateOf(listOf<Uri>())
+//    }
     var changeNickname by remember {
         mutableStateOf(false)
     }
     var name by remember {
         mutableStateOf(userViewModel.nickname)
+    }
+    var changePassword by remember {
+        mutableStateOf(false)
+    }
+    var password by remember {
+        mutableStateOf("")
+    }
+    var rePassword by remember {
+        mutableStateOf("")
     }
     val galleryLauncher =
         rememberLauncherForActivityResult(contract = ActivityResultContracts.GetMultipleContents()) { urls ->
@@ -78,7 +87,7 @@ fun EditPage(navController: NavController, userViewModel: UserViewModel) {
                         Toast.makeText(context, "上传成功!", Toast.LENGTH_SHORT).show()
                     }
                 }
-            selectImages = urls
+//            selectImages = urls
         }
     Box(modifier = Modifier.systemBarsPadding()) {
         Scaffold(topBar = {
@@ -124,15 +133,15 @@ fun EditPage(navController: NavController, userViewModel: UserViewModel) {
                 }
                 AnimatedContent(targetState =changeNickname ) {
                     if (changeNickname){
-                        MyInputBox(value = name, onValueChange = {name=it}, tint ="" )
+                        MyInputBox(value = name, onValueChange = {name=it}, tint ="新的昵称", width = 0.5f )
                     }
                 }
                 Button(onClick = {
                     if (changeNickname){
-                        Repository.changeNickname(userViewModel.token, userViewModel.email, "9")
+                        Repository.changeNickname(userViewModel.token, userViewModel.email, name)
                             .observe(lifecycleOwner) {
                                 if (it.isSuccess) {
-                                    userViewModel.nickname = "9"
+                                    userViewModel.nickname = name
                                 } else {
                                     val toast = Toast.makeText(context, "修改失败", Toast.LENGTH_SHORT)
                                     toast.show()
@@ -140,26 +149,40 @@ fun EditPage(navController: NavController, userViewModel: UserViewModel) {
                             }
                     }
                     changeNickname=!changeNickname
-                }) {
+                }, shape = RoundedCornerShape(50),
+                    colors = ButtonDefaults.buttonColors(yellow1)) {
                     Text(text = if (changeNickname) "确认" else "修改昵称")
                 }
-                Button(onClick = {
-                    Repository.changePassword(
-                        userViewModel.token,
-                        userViewModel.email,
-                        "456789",
-                        "456789"
-                    ).observe(lifecycleOwner) {
-                        if (it.isSuccess) {
-                            val toast = Toast.makeText(context, "修改成功", Toast.LENGTH_SHORT)
-                            toast.show()
-                        } else {
-                            val toast = Toast.makeText(context, "修改失败", Toast.LENGTH_SHORT)
-                            toast.show()
+                AnimatedContent(targetState = changePassword) {
+                    if (changePassword){
+                        Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+                            MyInputBox(value = password, onValueChange = {password=it}, tint ="输入新密码", width = 0.7f )
+                            Spacer(modifier = Modifier.height(10.dp))
+                            MyInputBox(value = rePassword, onValueChange = {rePassword=it}, tint = "重新输入新密码", width = 0.7f)
                         }
                     }
-                }) {
-                    Text(text = "修改密码")
+                }
+                Button(onClick = {
+                    if (changePassword){
+                        Repository.changePassword(
+                            userViewModel.token,
+                            userViewModel.email,
+                            password,
+                            rePassword
+                        ).observe(lifecycleOwner) {
+                            if (it.isSuccess) {
+                                val toast = Toast.makeText(context, "修改成功", Toast.LENGTH_SHORT)
+                                toast.show()
+                            } else {
+                                val toast = Toast.makeText(context, "修改失败", Toast.LENGTH_SHORT)
+                                toast.show()
+                            }
+                        }
+                    }
+                    changePassword=!changePassword
+                }, shape = RoundedCornerShape(50),
+                    colors = ButtonDefaults.buttonColors(yellow1)) {
+                    Text(text = if (changePassword) "确认" else "修改密码")
                 }
             }
         }
