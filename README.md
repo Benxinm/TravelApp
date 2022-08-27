@@ -1,0 +1,6 @@
+# TravelApp
+West 2 Summer Collaboration
+这次项目以compose为主要框架外加dataStore coil viewModel retrofit2 navigation
+对动画进行了封装
+项目打开固定是登陆界面，可以改变TrevelApp里navigation navhost里的startDestination Page.Login.name改为Page.MainPage.name
+本次项目队友设计过于庞大导致一部分接口没有接完
