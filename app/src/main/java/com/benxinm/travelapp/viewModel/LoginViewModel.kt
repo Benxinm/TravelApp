@@ -11,8 +11,6 @@ import com.benxinm.travelapp.logic.Repository
 import kotlin.math.log
 
 class LoginViewModel : ViewModel() {
-//    var email by mutableStateOf("")
-//    var nickname by mutableStateOf("")
     private val loginLiveData = MutableLiveData<HashMap<String,String>>()
     val userLiveData=Transformations.switchMap(loginLiveData){map->
         Repository.login(map["email"]!!,map["password"]!!)
